@@ -1,0 +1,27 @@
+{
+  "name": "phaser3-typescript-template-with-bundler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build:dev": "webpack --mode development",
+    "build:prod": "webpack --mode production",
+    "start:compile": "tsc -w",
+    "start:server": "webpack-dev-server --mode development --open",
+    "start": "concurrently npm:start:*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "phaser": "^3.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "^13.1.8",
+    "concurrently": "^5.0.2",
+    "typescript": "^3.9",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.1"
+  }
+}
