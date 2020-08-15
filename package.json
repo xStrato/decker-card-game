@@ -1,5 +1,5 @@
 {
-  "name": "phaser3-typescript-template-with-bundler",
+  "name": "card-game-type",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "phaser": "^3.23.1"
+    "phaser": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^13.1.8",
