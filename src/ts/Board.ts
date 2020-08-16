@@ -10,32 +10,30 @@ export default class Board extends GameObjects.Container
     private player2: Array<Card>;
     private placeholderPlayer1: Array<GameObjects.Sprite>;
     private placeholderPlayer2: Array<GameObjects.Sprite>;
-    private paddingLeft: number = 0
+    // private paddingLeft: number = 0
     private paddingX: number
     private paddingY: number
     private cardWidth: number
     private cardHeight: number
+    private spreadNumber: number
 
-    constructor(
-        public scene:Scene,
-        private spreadNumber: number,
-        // private cardWidth = 100,
-        // private cardHeight = cardWidth+(100*.3),
-        private backgroundColor = "#00AA37"
-        )
+    constructor(public scene:Scene, private backgroundColor = "#00AA37")
     {
       super(scene)
       this.width = +this.scene.game.config.width
       this.height = +this.scene.game.config.height
-      this.scene.add.existing(this)
-
-      this.paddingX = this.width * .1
-      this.paddingY = this.height * .05
 
       this.cardWidth = this.width * .11
       this.cardHeight = this.cardWidth + (100*.3)
 
+      this.paddingY = this.height * .05
+      
+      this.spreadNumber = Math.floor((this.width-this.cardWidth)/ Math.floor(this.cardWidth + (this.cardWidth * .5)))
+      this.paddingX = (this.width - (this.spreadNumber  * this.cardWidth))/3
+
+      // console.log(Math.floor((this.width/this.cardWidth)) - Math.floor((this.cardWidth + (this.cardWidth * .7))/this.cardWidth))
       this.setPosition(0, 0, this.width, this.height)
+      this.scene.add.existing(this)
     }
 
     public shuffleAndCut(): this
@@ -51,9 +49,9 @@ export default class Board extends GameObjects.Container
         }
 
         //Placeholder cards for Player 1 at Top of the board
-        this.placeholderPlayer1 = BoardService.placeholderAt(this, this.spreadNumber, this.paddingLeft+this.paddingX, this.height-this.cardHeight-this.paddingY, this.cardWidth, this.cardHeight)
+        this.placeholderPlayer1 = BoardService.placeholderAt(this, this.spreadNumber, this.paddingX, this.height-this.cardHeight-this.paddingY, this.cardWidth, this.cardHeight)
         //Placeholder cards for Player 2 at Bottom of the board
-        this.placeholderPlayer2 = BoardService.placeholderAt(this, this.spreadNumber, this.paddingLeft+this.paddingX, this.paddingY, this.cardWidth, this.cardHeight)
+        this.placeholderPlayer2 = BoardService.placeholderAt(this, this.spreadNumber, this.paddingX, this.paddingY, this.cardWidth, this.cardHeight)
 
         this.player1 = BoardService.mixUp(mixUpConfig)
         this.player2 = BoardService.mixUp(mixUpConfig)

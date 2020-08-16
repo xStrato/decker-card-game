@@ -45,7 +45,8 @@ export default class BoardService
         {
             width,
             height,
-            cellWidth: 120,
+            cellWidth: width + (width * .5),
+            cellHeight: height + (height * .2),
             x: x+width/2.7,
             y: y+height/1.7,
         }

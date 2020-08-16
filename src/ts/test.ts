@@ -9,7 +9,7 @@ export default class Test extends Scene
     }
     public create(): void
     {
-        const board = new Board(this, 5).shuffleAndCut()
+        const board = new Board(this).shuffleAndCut()
         board.playCards("player1")
         board.playCards("player2", true)
     }
