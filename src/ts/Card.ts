@@ -1,4 +1,5 @@
 import { Geom, GameObjects, Scene, Types, Display } from "phaser";
+import CardService from "./Services/CardService";
 
 const { Color, Graphics, Group, Text  } = {...Display, ...GameObjects}
 const { Rectangle } = Geom
@@ -40,13 +41,13 @@ export default class Card extends GameObjects.Container
     public x: number
     public y: number
     private textConfig: Types.GameObjects.Text.TextStyle
-    private cardState: CardState
+    private flipState: boolean
     private faceData: CardData
     /*
     *
     * @param {CardData} - Naipes: 1 - clubs (♣), 2 - diamonds (♦), 3 - hearts (♥), 4 - spades (♠)
     */
-    constructor(scene: Scene, dimensions: CardDimensions, data: CardData, cardState: CardState = CardState.FACE_DOWN, flipAnimation: boolean = true)
+    constructor(scene: Scene, dimensions: CardDimensions, data: CardData, flipAnimation: boolean = false, flipState: boolean = false)
     {
         super(scene)
         const { x, y, width, height } = dimensions
@@ -55,11 +56,11 @@ export default class Card extends GameObjects.Container
       this.height = height
       this.x = x
       this.y = y
-      this.textConfig = { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif', color: data.color, fontSize: `${Math.floor(width * .2)}` }
-      this.cardState = cardState
+      this.textConfig = { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif', color: data.color, fontSize: `${Math.floor(width * .2)}px` }
+      this.flipState = flipState
       this.faceData = data
 
-      this.flip(cardState, flipAnimation)
+      this.flip(flipAnimation)
 
       this.scene.add.existing(this)
     }
@@ -68,38 +69,56 @@ export default class Card extends GameObjects.Container
     {
         let {naipe, cardNumber, color} = data
 
-        naipe = this.getCardNaipe(naipe)
+        naipe = this.getCardSuit(naipe)
         cardNumber = this.getCardNumber(cardNumber)
 
         const layout = new Graphics(this.scene).fillRectShape(new Rectangle(0, 0, this.width, this.height)).fillStyle(0xFFFFFF)
 
-        const text1 = new Text(this.scene, 5, 0, cardNumber, this.textConfig);
-        const text2 = new Text(this.scene, this.width - text1.width-3, 0, cardNumber, this.textConfig);
-        const text3 = new Text(this.scene, text1.width+5, this.height, cardNumber, this.textConfig).setAngle(180);
-        const text4 = new Text(this.scene, this.width-3, this.height, cardNumber, this.textConfig).setAngle(180);
+        const text1 = new Text(this.scene, 0, 0, cardNumber, this.textConfig)
+        const text2 = new Text(this.scene, 0, 0, cardNumber, this.textConfig)
+        const text3 = new Text(this.scene, 0, 0, cardNumber, this.textConfig).setAngle(180)
+        const text4 = new Text(this.scene, 0, 0, cardNumber, this.textConfig).setAngle(180)
+
+        const centerText = new Text(this.scene, 0,0, cardNumber, this.textConfig)
+        .setFontSize(this.width/3)
+        .setColor("#fff")
+        .setShadowStroke(true)
 
         //Creates the naipe symbols under the numbers
-        const text1Symbol1 = new Text(this.scene, 0, 0, naipe, this.textConfig)
-        text1Symbol1.setPosition(text1Symbol1.width/2 - text1.width *.1, text1.height/2)
-        const text1Symbol2 = new Text(this.scene, (this.width - text1Symbol1.width) - text1.width * .1, text1.height/2, naipe, this.textConfig)
-        const text1Symbol3 = new Text(this.scene, text1Symbol1.width+text1.width * .2, this.height-text1.height/2, naipe, this.textConfig).setAngle(180)
-        const text1Symbol4 = new Text(this.scene, this.width-text1.width *.1, this.height-text1.height/2, naipe, this.textConfig).setAngle(180)
+        const textSuit1 = new Text(this.scene, 0, 0, naipe, this.textConfig)
+        const textSuit2 = new Text(this.scene, 0, 0, naipe, this.textConfig)
+        const textSuit3 = new Text(this.scene, 0, 0, naipe, this.textConfig).setAngle(180)
+        const textSuit4 = new Text(this.scene, 0, 0, naipe, this.textConfig).setAngle(180)
 
-        //Creates main symbol
-        let symbol = new Text(this.scene, 0,0, naipe, this.textConfig).setFontSize(this.width)
-        symbol.setPosition(this.width/2-symbol.width/2, this.height/2 - symbol.height/2)
-        symbol = this.ajustNaipeSize(symbol);
+        //Creates main Suit
+        let centralSuit = new Text(this.scene, 0,0, naipe, this.textConfig).setFontSize(this.width)
 
-        const centerText = new Text(this.scene, 0,0, cardNumber, this.textConfig).setFontSize(this.width/2.5).setColor("#fff")
-        centerText.setPosition(this.width/2 - centerText.width/2, this.height/2 - centerText.height/2)
+        CardService.standardizeTextDimensions(this, [centralSuit, textSuit1, textSuit2, textSuit3, textSuit4], "♦");
+        CardService.standardizeTextDimensions(this, [text1, text2, text3, text4, centerText], "5");
 
-        const rect = new Graphics(this.scene)
-        rect.lineStyle(1, color !== '#000'? 0xff0000 : 0x000, 1)
-        rect.strokeRect(0, 0, this.width/1.5, this.height/1.5)
-        //Centralizar a 1/6 to tamanho total da carta
-        rect.setPosition(this.width/6, this.height/6)
+        const layoutConfig = 
+        {
+            paddingX: text1.displayWidth * .3,
+            paddingY: text1.displayHeight * .3
+        }
 
-        this.add([layout, text1, text2, text3, text4, text1Symbol1, text1Symbol2, text1Symbol3, text1Symbol4, symbol, centerText, rect])
+        text1.setPosition(layoutConfig.paddingX, 0)
+        text2.setPosition(this.width - text2.displayWidth - layoutConfig.paddingX, 0)
+        text3.setPosition(text2.displayWidth + layoutConfig.paddingX, this.height)
+        text4.setPosition(this.width - layoutConfig.paddingX, this.height)
+        centerText.setPosition(this.width/2 - centerText.displayWidth/2, this.height/2 - centerText.displayHeight/2)
+
+        centralSuit.setPosition(this.width/2 - centralSuit.displayWidth/2, this.height/2 - centralSuit.displayHeight/2)
+        textSuit1.setPosition(layoutConfig.paddingX, text1.displayHeight/2+layoutConfig.paddingY)
+        textSuit2.setPosition(this.width - textSuit2.displayWidth - layoutConfig.paddingX, text2.displayHeight/2+layoutConfig.paddingY)
+        textSuit3.setPosition(textSuit3.displayWidth + layoutConfig.paddingX, this.height-(text3.displayHeight/2+layoutConfig.paddingY))
+        textSuit4.setPosition(this.width - layoutConfig.paddingX, this.height-(textSuit4.displayHeight/2+layoutConfig.paddingY))
+
+        const centralRect = new Graphics(this.scene)
+        .lineStyle(1, Color.HexStringToColor(color).color, 1)
+        .strokeRect(this.width/6, this.height/6, this.width/1.5, this.height/1.5)
+
+        this.add([layout, text1, text2, text3, text4, textSuit1, textSuit2, textSuit3, textSuit4, centralSuit, centerText, centralRect])
         this.setPosition(this.x, this.y)
     }
 
@@ -108,30 +127,30 @@ export default class Card extends GameObjects.Container
         const layout = new Graphics(this.scene, {fillStyle: { color: 0xffffff } })
             .fillRectShape(new Rectangle(0, 0, this.width, this.height))
 
-        const squadSize = this.width/15
-        const cellSize = 7
+        const rectacleSize = this.width/15
+        const cellSize = this.width * 0.1
 
-        const diamond = new Graphics(this.scene, {fillStyle: { color } }).fillRectShape(new Rectangle(0, 0, squadSize, squadSize))
-
+        const diamond = new Graphics(this.scene, {fillStyle: { color } }).fillRectShape(new Rectangle(0, 0, rectacleSize, rectacleSize))
+        2020
         const textureName = `diamond${Math.floor(Math.random()*100000)}`
         diamond.generateTexture(textureName)
 
-        const alignConfig: 
+        const alignConfig:
         Types.Actions.GridAlignConfig = 
         {
-            width: this.width/cellSize,
-            height: this.height/cellSize,
+            width: Math.ceil(this.width/cellSize),
+            height: Math.floor(this.height/cellSize),
             cellWidth: cellSize,
             cellHeight: cellSize,
-            x: 5,
-            y: 6
+            x: rectacleSize,
+            y: rectacleSize
         }
-
+        
         const groupConfig: 
         Types.GameObjects.Group.GroupCreateConfig = 
         {
             key: textureName,
-            frameQuantity: (this.width/7) * Math.floor(this.height/7),
+            frameQuantity: Math.floor(this.height/cellSize) * 10,
             gridAlign: alignConfig
         }
 
@@ -139,15 +158,6 @@ export default class Card extends GameObjects.Container
         this.add([layout,...group.getChildren()])
         group.destroy()
         layout.closePath()
-    }
-
-    private ajustNaipeSize(naipeText: GameObjects.Text): GameObjects.Text
-    {
-        const ref = new Text(this.scene, 0,0, "♥", this.textConfig).setFontSize(this.width).setVisible(false)
-        naipeText.width = ref.width
-        ref.destroy()
-
-        return naipeText
     }
 
     private getCardNumber(num: string): string
@@ -162,20 +172,20 @@ export default class Card extends GameObjects.Container
         }
     }
 
-    private getCardNaipe(naipe: string): string
+    private getCardSuit(suit: string): string
     {
         // 1 - clubs (♣), 2 - diamonds (♦), 3 - hearts (♥), 4 - spades (♠)
-        switch(naipe)
+        switch(suit)
         {
             case '1': return "♣"
             case '2': return "♦"
             case '3': return "♥"
             case '4': return "♠"
-            default: return naipe
+            default: return suit
         }
     }
 
-    public flip(cardState: CardState, animation: boolean = true): void
+    public flip(animation: boolean = true): void
     {
         if(animation)
         {
@@ -189,11 +199,12 @@ export default class Card extends GameObjects.Container
             })
         }
         
-        switch(cardState)
+        switch(this.flipState)
         {
-            case CardState.FACE_DOWN: this.faceDown(Color.HexStringToColor(this.faceData.color).color); break;
-            case CardState.FACE_UP: this.faceUp({...this.faceData}); break;
-            default: break;
+            case false: this.faceDown(Color.HexStringToColor(this.faceData.color).color); break;
+            case true: this.faceUp({...this.faceData}); break;
         }
+
+        this.flipState = !this.flipState
     }
   }
