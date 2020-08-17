@@ -1,6 +1,6 @@
 import GameTemplate from './GameTemplate';
 import Phaser from 'phaser'
-import Test from './test';
+import Match from './Match';
 
 
 const config = {
@@ -9,7 +9,7 @@ const config = {
   height: 360*1,
   backgroundColor: "#00AA37",
   title: "Template",
-  scene: [Test]
+  scene: [Match]
 }
 
 new GameTemplate(config)

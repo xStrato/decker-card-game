@@ -9,33 +9,42 @@ export default class BoardService
     public static mixUp(mixUpConfig: BoardServiceConfig): Array<Card>
     {
         const player: Array<Card> = []
-        const { scope, spreadNumber, x, y, width, height } = mixUpConfig
+        const { spreadNumber } = mixUpConfig
 
         for (let i = 0; i < spreadNumber; i++)
         {
             //Generates cards for player
-            const cardDeck = new Card(
-                scope.scene,
-                {
-                    x, 
-                    y, 
-                    width, 
-                    height
-                }, 
-                {
-                    naipe: `${Phaser.Math.Between(1, 4)}`, 
-                    cardNumber: `${Phaser.Math.Between(1, 13)}`, 
-                    color: this.setColor() 
-                })
+            const cardDeck = this.requestNewCard(mixUpConfig)
             //Add card into array and setAngle to match the deck
             player.push(cardDeck.setAngle(90));
         }
         return player
     }
 
+    public static requestNewCard(mixUpConfig: BoardServiceConfig): Card
+    {
+        const { scope, x, y, width, height } = mixUpConfig
+        return new Card(
+            scope.scene,
+            {
+                x,
+                y,
+                width, 
+                height
+            }, 
+            {
+                naipe: `${Phaser.Math.Between(1, 4)}`, 
+                cardNumber: `${Phaser.Math.Between(1, 13)}`, 
+                color: this.setColor()
+            })
+    }
+
+    public static deal(board: Board, player: string, reveal: boolean = false):void
+    {
+    }
+
     public static placeholderAt(scope:Board, spreadNumber:number, x:number, y:number, width:number, height:number): Array<GameObjects.Sprite>
     {
-
         const blankCard = this.drawCardStroke(scope.scene, 0, 0, width, height)
 
         blankCard.generateTexture("blankCard")

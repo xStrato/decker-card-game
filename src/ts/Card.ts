@@ -61,7 +61,6 @@ export default class Card extends GameObjects.Container
       this.faceData = data
 
       this.flip(flipAnimation)
-
       this.scene.add.existing(this)
     }
     
@@ -157,7 +156,6 @@ export default class Card extends GameObjects.Container
         const group = new Group(this.scene, groupConfig)
         this.add([layout,...group.getChildren()])
         group.destroy()
-        layout.closePath()
     }
 
     private getCardNumber(num: string): string
@@ -206,5 +204,14 @@ export default class Card extends GameObjects.Container
         }
 
         this.flipState = !this.flipState
+    }
+
+    public addEvent(): this
+    {
+        this.setInteractive()
+        this.input.hitArea.x += this.width/2
+        this.input.hitArea.y += this.height/2
+
+        return this
     }
   }

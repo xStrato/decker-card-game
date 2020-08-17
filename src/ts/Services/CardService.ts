@@ -2,7 +2,7 @@ import { GameObjects, Scene } from "phaser"
 import Card from "../Card"
 const { Text } = GameObjects
 
-export default class CardService 
+export default class CardService
 {
     public static standardizeTextDimensions(scope:Card, textObjs:GameObjects.Text[], refSuit:string): void
     {

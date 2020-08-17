@@ -10,14 +10,13 @@ export default class Board extends GameObjects.Container
     private player2: Array<Card>;
     private placeholderPlayer1: Array<GameObjects.Sprite>;
     private placeholderPlayer2: Array<GameObjects.Sprite>;
-    // private paddingLeft: number = 0
     private paddingX: number
     private paddingY: number
     private cardWidth: number
     private cardHeight: number
     private spreadNumber: number
 
-    constructor(public scene:Scene, private backgroundColor = "#00AA37")
+    constructor(public scene:Scene)
     {
       super(scene)
       this.width = +this.scene.game.config.width
@@ -31,30 +30,21 @@ export default class Board extends GameObjects.Container
       this.spreadNumber = Math.floor((this.width-this.cardWidth)/ Math.floor(this.cardWidth + (this.cardWidth * .5)))
       this.paddingX = (this.width - (this.spreadNumber  * this.cardWidth))/3
 
-      // console.log(Math.floor((this.width/this.cardWidth)) - Math.floor((this.cardWidth + (this.cardWidth * .7))/this.cardWidth))
       this.setPosition(0, 0, this.width, this.height)
       this.scene.add.existing(this)
     }
 
     public shuffleAndCut(): this
     {
-        const mixUpConfig: BoardServiceConfig = 
-        {
-            scope: this,
-            spreadNumber: this.spreadNumber,
-            x: this.width-this.cardWidth,
-            y: this.height/2 - this.cardHeight/2+this.paddingY,
-            width: this.cardWidth,
-            height: this.cardHeight
-        }
-
         //Placeholder cards for Player 1 at Top of the board
         this.placeholderPlayer1 = BoardService.placeholderAt(this, this.spreadNumber, this.paddingX, this.height-this.cardHeight-this.paddingY, this.cardWidth, this.cardHeight)
         //Placeholder cards for Player 2 at Bottom of the board
         this.placeholderPlayer2 = BoardService.placeholderAt(this, this.spreadNumber, this.paddingX, this.paddingY, this.cardWidth, this.cardHeight)
 
-        this.player1 = BoardService.mixUp(mixUpConfig)
-        this.player2 = BoardService.mixUp(mixUpConfig)
+        this.player1 = BoardService.mixUp(this.getCreateCardParams())
+        this.player2 = BoardService.mixUp(this.getCreateCardParams())
+
+        // BoardService.requestNewCard(this.getCreateCardParams()).setAngle(90)
 
         return this
     }
@@ -63,14 +53,14 @@ export default class Board extends GameObjects.Container
     {
       const players: { [player:string]: Card[] } = 
       {
-        player1: this.player1,
-        player2: this.player2
+          player1: this.player1,
+          player2: this.player2
       }
 
       const placeholders: { [player:string]: GameObjects.Sprite[] } = 
       {
-        player1: this.placeholderPlayer1, 
-        player2: this.placeholderPlayer2
+          player1: this.placeholderPlayer1, 
+          player2: this.placeholderPlayer2
       }
 
       players[player].forEach((card, index) => {
@@ -88,5 +78,21 @@ export default class Board extends GameObjects.Container
       })
 
       return this
+    }
+
+    public requestADeal = (): Card => BoardService.requestNewCard(this.getCreateCardParams())
+
+    private getCreateCardParams(): BoardServiceConfig
+    {
+      const mixUpConfig: BoardServiceConfig = 
+      {
+          scope: this,
+          spreadNumber: this.spreadNumber,
+          x: this.width-this.cardWidth,
+          y: this.height/2 - this.cardHeight/2+this.paddingY,
+          width: this.cardWidth,
+          height: this.cardHeight
+      }
+      return mixUpConfig
     }
 }
