@@ -6,15 +6,15 @@ export default class Board extends GameObjects.Container
 {
     public height: number
     public width: number
-    public player1: Array<Card>;
-    public player2: Array<Card>;
+    private player1: Array<Card>;
+    private player2: Array<Card>;
     private placeholderPlayer1: Array<GameObjects.Sprite>;
     private placeholderPlayer2: Array<GameObjects.Sprite>;
     private paddingX: number
     private paddingY: number
     private cardWidth: number
     private cardHeight: number
-    private spreadNumber: number
+    public spreadNumber: number
 
     constructor(public scene:Scene)
     {
@@ -34,6 +34,22 @@ export default class Board extends GameObjects.Container
       this.scene.add.existing(this)
     }
 
+    get players(): { [player:string]: Card[] }
+    {
+      return {
+          player1: this.player1,
+          player2: this.player2
+      }
+    }
+
+    get placeholders(): { [player:string]: GameObjects.Sprite[] }
+    {
+        return {
+          player1: this.placeholderPlayer1, 
+          player2: this.placeholderPlayer2
+        }
+    }
+
     public shuffleAndCut(): this
     {
         //Placeholder cards for Player 1 at Top of the board
@@ -47,26 +63,22 @@ export default class Board extends GameObjects.Container
         return this
     }
 
-    public playCards(player: string, reveal: boolean = false): this
+    public playCards(player:string, setIteration:boolean=false, reveal:boolean=false): this
     {
-      const players: { [player:string]: Card[] } = 
-      {
-          player1: this.player1,
-          player2: this.player2
-      }
+      this.players[player].forEach((card, index) => {
 
-      const placeholders: { [player:string]: GameObjects.Sprite[] } = 
-      {
-          player1: this.placeholderPlayer1, 
-          player2: this.placeholderPlayer2
-      }
-
-      players[player].forEach((card, index) => {
+        if(setIteration)
+        {
+          card.setInteration()
+          .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
+          .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
+          .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))
+        }
 
         this.scene.tweens.add({
           onStart: () => this.removeInteractive(),
           targets: card,
-          x: placeholders[player][index].x - ((this.width)/2),
+          x: this.placeholders[player][index].x - ((this.width)/2),
           y: player.includes("player2") ? this.height-this.cardHeight-this.paddingY : this.paddingY,
           duration: 2000,
           ease: 'Power2',
@@ -99,16 +111,13 @@ export default class Board extends GameObjects.Container
       return mixUpConfig
     }
 
-    public setInteration(): this
+    public setupCardDeck():void
     {
-      this.player1.forEach(card => {
-
-        card.setInteration()
-        .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
-        .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
-        .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))
-
-      })
-      return this
+      const deck = this.requestADeal("deck")
+        .setAngle(90)
+        .setInteration()
+        .on("pointerdown", () => this.scene.events.emit("cardSeleted", deck))
+        .on("pointerover", () => this.scene.events.emit("cardSeletedOver", deck))
+        .on("pointerout", () => this.scene.events.emit("cardSeletedOut", deck))
     }
 }
