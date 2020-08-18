@@ -24,14 +24,8 @@ export default class BoardService
     public static requestNewCard(mixUpConfig: BoardServiceConfig): Card
     {
         const { scope, x, y, width, height } = mixUpConfig
-        return new Card(
-            scope.scene,
-            {
-                x,
-                y,
-                width, 
-                height
-            }, 
+
+        return new Card(scope.scene, {x,y,width, height}, 
             {
                 naipe: `${Phaser.Math.Between(1, 4)}`, 
                 cardNumber: `${Phaser.Math.Between(1, 13)}`, 

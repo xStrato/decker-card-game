@@ -25,7 +25,6 @@ type CardData = {
 
 interface ICard
 {
-    // card: T
     width: number
     height: number
     x: number
@@ -35,13 +34,13 @@ interface ICard
 
 export default class Card extends GameObjects.Container
 {
-    // public card: GameObjects.Container;
     public width: number
     public height: number
     public x: number
     public y: number
+    public label: string
     private textConfig: Types.GameObjects.Text.TextStyle
-    private flipState: boolean
+    public flipState: boolean
     private faceData: CardData
     /*
     *
@@ -72,6 +71,8 @@ export default class Card extends GameObjects.Container
         cardNumber = this.getCardNumber(cardNumber)
 
         const layout = new Graphics(this.scene).fillRectShape(new Rectangle(0, 0, this.width, this.height)).fillStyle(0xFFFFFF)
+
+        this.setData({layout})
 
         const text1 = new Text(this.scene, 0, 0, cardNumber, this.textConfig)
         const text2 = new Text(this.scene, 0, 0, cardNumber, this.textConfig)
@@ -123,8 +124,7 @@ export default class Card extends GameObjects.Container
 
     private faceDown(color: number): void
     {
-        const layout = new Graphics(this.scene, {fillStyle: { color: 0xffffff } })
-            .fillRectShape(new Rectangle(0, 0, this.width, this.height))
+        const layout = new Graphics(this.scene, {fillStyle: { color: 0xffffff } }).fillRectShape(new Rectangle(0, 0, this.width, this.height))
 
         const rectacleSize = this.width/15
         const cellSize = this.width * 0.1
@@ -133,6 +133,8 @@ export default class Card extends GameObjects.Container
         2020
         const textureName = `diamond${Math.floor(Math.random()*100000)}`
         diamond.generateTexture(textureName)
+
+        this.setData({textureName})
 
         const alignConfig:
         Types.Actions.GridAlignConfig = 
@@ -188,12 +190,14 @@ export default class Card extends GameObjects.Container
         if(animation)
         {
             this.scene.tweens.add({
+                onStart: () => this.removeInteractive(),
                 targets: this,
                 x: this.x + 10,
                 y: this.y + 10,
                 duration: 400,
                 ease: 'Power2',
-                yoyo: true
+                yoyo: true,
+                onComplete: () => this.setInteration(),
             })
         }
         
@@ -206,7 +210,16 @@ export default class Card extends GameObjects.Container
         this.flipState = !this.flipState
     }
 
-    public addEvent(): this
+    get cardInfo(): CardData
+    {
+        return {
+            naipe: this.faceData.naipe, 
+            cardNumber: this.faceData.cardNumber,
+            color: this.faceData.color
+        }
+    }
+
+    public setInteration(): this
     {
         this.setInteractive()
         this.input.hitArea.x += this.width/2

@@ -6,8 +6,8 @@ export default class Board extends GameObjects.Container
 {
     public height: number
     public width: number
-    private player1: Array<Card>;
-    private player2: Array<Card>;
+    public player1: Array<Card>;
+    public player2: Array<Card>;
     private placeholderPlayer1: Array<GameObjects.Sprite>;
     private placeholderPlayer2: Array<GameObjects.Sprite>;
     private paddingX: number
@@ -44,8 +44,6 @@ export default class Board extends GameObjects.Container
         this.player1 = BoardService.mixUp(this.getCreateCardParams())
         this.player2 = BoardService.mixUp(this.getCreateCardParams())
 
-        // BoardService.requestNewCard(this.getCreateCardParams()).setAngle(90)
-
         return this
     }
 
@@ -66,6 +64,7 @@ export default class Board extends GameObjects.Container
       players[player].forEach((card, index) => {
 
         this.scene.tweens.add({
+          onStart: () => this.removeInteractive(),
           targets: card,
           x: placeholders[player][index].x - ((this.width)/2),
           y: player.includes("player2") ? this.height-this.cardHeight-this.paddingY : this.paddingY,
@@ -76,11 +75,15 @@ export default class Board extends GameObjects.Container
           onComplete: reveal ? () => this.scene.time.delayedCall(50*index, () => card.flip()) : null,
         })
       })
-
       return this
     }
 
-    public requestADeal = (): Card => BoardService.requestNewCard(this.getCreateCardParams())
+    public requestADeal(label: string = ""): Card
+    {
+      var card = BoardService.requestNewCard(this.getCreateCardParams())
+      card.label = label
+      return card;
+    }
 
     private getCreateCardParams(): BoardServiceConfig
     {
@@ -94,5 +97,18 @@ export default class Board extends GameObjects.Container
           height: this.cardHeight
       }
       return mixUpConfig
+    }
+
+    public setInteration(): this
+    {
+      this.player1.forEach(card => {
+
+        card.setInteration()
+        .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
+        .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
+        .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))
+
+      })
+      return this
     }
 }
