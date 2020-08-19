@@ -1,6 +1,7 @@
 import { GameObjects, Scene } from "phaser";
 import Card from "./Card";
 import BoardService, { BoardServiceConfig } from "./Services/BoardService";
+import Match from "./Match";
 
 export default class Board extends GameObjects.Container
 {
@@ -67,16 +68,8 @@ export default class Board extends GameObjects.Container
     {
       this.players[player].forEach((card, index) => {
 
-        if(setIteration)
-        {
-          card.setInteration()
-          .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
-          .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
-          .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))
-        }
-
         this.scene.tweens.add({
-          onStart: () => this.removeInteractive(),
+          // onStart: () => this.scene.events.off("cardSeletedOver").off("cardSeleted"),
           targets: card,
           x: this.placeholders[player][index].x - ((this.width)/2),
           y: player.includes("player2") ? this.height-this.cardHeight-this.paddingY : this.paddingY,
@@ -86,6 +79,14 @@ export default class Board extends GameObjects.Container
           delay: 1000*index,
           onComplete: reveal ? () => this.scene.time.delayedCall(50*index, () => card.flip()) : null,
         })
+
+        if(setIteration)
+        {
+          card.setInteration()
+          .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
+          .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
+          .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))
+        }
       })
       return this
     }

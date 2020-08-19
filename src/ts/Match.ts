@@ -47,7 +47,6 @@ export default class Match extends Scene
 
     public cardSeletedOver(card: Card): void
     {
-        // this.placehold = undefined
         if(card.label === 'deck')
         {
             this.placehold = new Graphics(this).fillStyle(0x000, 0.3)
@@ -57,6 +56,7 @@ export default class Match extends Scene
             this.placehold = new Graphics(this).fillStyle(0x000, 0.3)
             .fillRectShape(new Geom.Rectangle(card.x, card.y, card.width, card.height))
         }
+        
         this.add.existing(this.placehold)
     }
 
