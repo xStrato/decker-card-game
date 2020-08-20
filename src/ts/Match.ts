@@ -1,6 +1,7 @@
 import { Scene, Geom, GameObjects, Input } from "phaser";
 import Board from "./Board";
 import Card from "./Card";
+import { Score } from "./Components/ScoreBoard";
 
 const { Graphics } = { ...Input, ...GameObjects}
 
@@ -21,17 +22,26 @@ export default class Match extends Scene
         this.placehold = undefined
 
         this.board = new Board(this)
+
+        //makes the central deck
+        this.board.setupCardDeck()
         
         this.board.shuffleAndCut()
         this.board.playCards("player1", true)
         this.board.playCards("player2", false, true)
-        //makes the central deck
-        this.board.setupCardDeck()
 
         this.events
         .on("cardSeleted", this.cardSeleted, this)
         .on("cardSeletedOver", this.cardSeletedOver, this)
         .on("cardSeletedOut", this.cardSeletedOut, this)
+    }
+
+    get scores(): Score
+    {
+        return {
+            player1: this.board.players["player1"].map(card => +card.cardInfo.cardNumber).reduce((acc, cur) => acc+cur),
+            player2: this.board.players["player2"].map(card => +card.cardInfo.cardNumber).reduce((acc, cur) => acc+cur),
+        }
     }
 
     public cardSeleted(card:Card): void
@@ -65,11 +75,15 @@ export default class Match extends Scene
         this.placehold?.destroy()
     }
 
-    get scores(): { player1: number, player2: number }
+    public enableInteraction(player:string): void
     {
-        return {
-            player1: this.board.players["player1"].map(card => +card.cardInfo.cardNumber).reduce((acc, cur) => acc+cur),
-            player2: this.board.players["player2"].map(card => +card.cardInfo.cardNumber).reduce((acc, cur) => acc+cur),
-        }
+        console.log(player)
+        console.log("object")
+        this.board.players[player].forEach(card=> {
+            card.setInteration()
+          .on("pointerdown", () => this.events.emit("cardSeleted", card))
+          .on("pointerover", () => this.events.emit("cardSeletedOver", card))
+          .on("pointerout", () => this.events.emit("cardSeletedOut", card))
+        })
     }
 }

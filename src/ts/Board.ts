@@ -1,7 +1,11 @@
 import { GameObjects, Scene } from "phaser";
 import Card from "./Card";
 import BoardService, { BoardServiceConfig } from "./Services/BoardService";
-import Match from "./Match";
+
+type BoardElement<T> = 
+{
+  [player:string]: T[]
+}
 
 export default class Board extends GameObjects.Container
 {
@@ -35,7 +39,7 @@ export default class Board extends GameObjects.Container
       this.scene.add.existing(this)
     }
 
-    get players(): { [player:string]: Card[] }
+    get players(): BoardElement<Card>
     {
       return {
           player1: this.player1,
@@ -43,7 +47,7 @@ export default class Board extends GameObjects.Container
       }
     }
 
-    get placeholders(): { [player:string]: GameObjects.Sprite[] }
+    get placeholders(): BoardElement<GameObjects.Sprite>
     {
         return {
           player1: this.placeholderPlayer1, 
@@ -69,7 +73,6 @@ export default class Board extends GameObjects.Container
       this.players[player].forEach((card, index) => {
 
         this.scene.tweens.add({
-          // onStart: () => this.scene.events.off("cardSeletedOver").off("cardSeleted"),
           targets: card,
           x: this.placeholders[player][index].x - ((this.width)/2),
           y: player.includes("player2") ? this.height-this.cardHeight-this.paddingY : this.paddingY,
@@ -83,29 +86,31 @@ export default class Board extends GameObjects.Container
         if(setIteration)
         {
           card.setInteration()
-          .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
-          .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
-          .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))
+            .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
+            .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
+            .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))
         }
       })
+
       return this
     }
 
     public requestADeal(label: string = ""): Card
     {
-      var card = BoardService.requestNewCard(this.getCreateCardParams())
+      const card = BoardService.requestNewCard(this.getCreateCardParams())
       card.label = label
       return card;
     }
 
     private getCreateCardParams(): BoardServiceConfig
     {
+      console.log()
       const mixUpConfig: BoardServiceConfig = 
       {
           scope: this,
           spreadNumber: this.spreadNumber,
-          x: this.width-this.cardWidth,
-          y: this.height/2 - this.cardHeight/2+this.paddingY,
+          x: this.width-this.cardWidth+(Math.floor(this.cardWidth*.15)),
+          y: (this.height/2 - this.cardHeight/2+this.paddingY)-(Math.floor(this.cardWidth*.15)),
           width: this.cardWidth,
           height: this.cardHeight
       }
@@ -114,11 +119,35 @@ export default class Board extends GameObjects.Container
 
     public setupCardDeck():void
     {
-      const deck = this.requestADeal("deck")
-        .setAngle(90)
-        .setInteration()
-        .on("pointerdown", () => this.scene.events.emit("cardSeleted", deck))
-        .on("pointerover", () => this.scene.events.emit("cardSeletedOver", deck))
-        .on("pointerout", () => this.scene.events.emit("cardSeletedOut", deck))
+      const qtdCards = (Math.floor(this.cardWidth*.15))
+
+      for (let i = 0; i <= qtdCards; i+=(Math.floor(this.cardWidth*.015)))
+      {
+        const mixUpConfig: BoardServiceConfig = 
+        {
+            scope: this,
+            spreadNumber: this.spreadNumber,
+            x: (this.width-this.cardWidth) + i,
+            y: (this.height/2 - this.cardHeight/2+this.paddingY) - i,
+            width: this.cardWidth,
+            height: this.cardHeight
+        }
+
+        if(i >= qtdCards-1)
+        {
+          const card = BoardService.requestNewCard(mixUpConfig)
+            .setAngle(90)
+            .setInteration()
+            .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
+            .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
+            .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))
+
+            card.label = 'deck'
+        }else
+        {
+          const card = BoardService.requestNewCard(mixUpConfig).setAngle(90)
+          card.label = 'deck'
+        }
+      }
     }
 }
