@@ -5,8 +5,8 @@ import Main from './Main';
 
 const config = {
   type: Phaser.AUTO,
-  width: 640*2,
-  height: 360*2,
+  width: 640*1,
+  height: 360*1,
   backgroundColor: "#00AA37",
   title: "Template",
   scene: [Main]
