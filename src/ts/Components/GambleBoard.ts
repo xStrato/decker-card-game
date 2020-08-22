@@ -1,7 +1,7 @@
 import { GameObjects, Scene } from "phaser";
 import Coin from "../Coin";
 
-const { Rectangle} = GameObjects
+const { Rectangle, Text, Group } = GameObjects
 
 export type Score = {
     player1: number, 
@@ -10,7 +10,10 @@ export type Score = {
 
 export default class GambleBoard extends GameObjects.Container
 {
-    constructor(public scene: Scene, public width:number, public height:number, public scores:Score)
+    private scorePlayer1Text: GameObjects.Text;
+    private scorePlayer2Text: GameObjects.Text;
+
+    constructor(public scene: Scene, public width:number, public height:number, public scores:Score, public initialMoney:number=10000)
     {
         super(scene)
         this.scores = scores
@@ -19,24 +22,61 @@ export default class GambleBoard extends GameObjects.Container
         this.create()
     }
 
-    public create(): void
+    public create()
     {
-        const centralBanner = new Rectangle(this.scene, 0 , 0, this.width*.8 , this.height*.3, 0xff6699, .2)
-        this.add([centralBanner])
+        this.setDataEnabled()
+        this.data.set('scores', this.scores)
+
+        console.log(this.data.get('scores'))
+
+        const panel = new Rectangle(this.scene, 0 , 0, this.width*.8 , this.height*.3, 0xff6699, .2)
+        this.add(panel)
 
         const colors = [0x356EA3, 0x856093, 0xEF7D9C, 0xFFAFA7, 0x7AABB0,0xF0CCC4]
+        
+        this.createCoins(colors, `$${this.initialMoney}`)
+        this.createInfoBar(panel);
+        
+        this.setPosition(this.width*.5, this.height*.5)
+    }
 
-        for (let i = 0; i < 20; i+=5)
+    public updateScore(): void
+    {
+        console.log(this.data.get('scores'))
+        console.log("object")
+        this.scorePlayer1Text.setText(`${this.data.get('scores')}`)
+        this.scorePlayer2Text.setText(`${this.scores.player2}`)
+    }
+
+    private createCoins(colors:number[], value:string): this
+    {
+        for (let i = 0; i < Math.ceil(this.width*.03); i+=Math.ceil(this.width*.0075))
         {
-            const coinPLayer1 = new Coin(this.scene, colors[Phaser.Math.Between(0, colors.length-1)], this.width, this.width, -220+i, -10+i, "$10000")
-            const coinPlayer2 = new Coin(this.scene, colors[Phaser.Math.Between(0, colors.length-1)], this.width, this.width, 100-i, i, "$10000")
+            const coinPLayer1 = new Coin(this.scene, colors[Phaser.Math.Between(0, colors.length-1)], this.width, this.width, -Math.floor(this.width*.345)+i, -Math.floor(this.width*.0157)+i, value)
+            const coinPlayer2 = new Coin(this.scene, colors[Phaser.Math.Between(0, colors.length-1)], this.width, this.width, Math.floor(this.width*.157)-i, i, "$10000")
 
             this.add([...coinPLayer1.getChildren(), ...coinPlayer2.getChildren()])
         }
+        return this
+    }
 
-        const panel = new Rectangle(this.scene, -60, 0, centralBanner.width*.35, centralBanner.height*.4, 0xff6699, .2)
-        this.add(panel)
+    private createInfoBar<T extends GameObjects.Rectangle | GameObjects.Ellipse>(refObject: T): this
+    {
+        const infoBar = new Rectangle(this.scene, -Math.floor(refObject.width*.118), 0, refObject.width*.35, refObject.height*.4, 0x000, .5)
+        const infoBarPanel = new Rectangle(this.scene, 0, 0, infoBar.width*.5, refObject.height*.4, 0xfffffff, .1)
+        infoBarPanel.setPosition((-infoBar.width/2)+(infoBarPanel.width*.315), 0)
+        
+        const { player1, player2 } = this.scores
+        
+        const fontSize = `${Math.ceil(infoBar.width*.13)}px`
 
-        this.setPosition(this.width*.5, this.height*.5)
+        this.scorePlayer1Text = new Text(this.scene, 0, -infoBar.height*.26,`${player1}`, {fontSize:fontSize, color: "#c3c3c3"})
+        this.scorePlayer1Text.setX(`${player1}`.length > 1 ? -infoBar.width*.040: 0)
+        
+        this.scorePlayer2Text = new Text(this.scene, -infoBar.width*.75, -infoBar.height*.26,`${player2}`, {fontSize:fontSize, color: "#c3c3c3"})
+        this.scorePlayer2Text.setX(`${player2}`.length > 1 ? -infoBar.width*.80 : -infoBar.width*.75)
+
+        this.add([infoBar, infoBarPanel, this.scorePlayer1Text, this.scorePlayer2Text])
+        return this
     }
 }

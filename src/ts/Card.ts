@@ -174,7 +174,6 @@ export default class Card extends GameObjects.Container
 
     private getCardSuit(suit: string): string
     {
-        // 1 - clubs (♣), 2 - diamonds (♦), 3 - hearts (♥), 4 - spades (♠)
         switch(suit)
         {
             case '1': return "♣"

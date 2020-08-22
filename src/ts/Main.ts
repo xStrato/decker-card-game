@@ -27,16 +27,17 @@ export default class Main extends Scene
         // this.add.text(200, 160, "New Game", { fontSize: 34 }).setInteractive().on("pointerdown", () => this.resetMatch())
 
         this.match.data.events.on("changedata-counter", this.hasTurnEnded, this)
+        this.gambleboard.data.events.on('changedata-scores', this.gambleboard.updateScore, this.gambleboard)
     }
 
-    public hasTurnEnded(card: Card, currentValue:number, previousValue:number): void
+    public hasTurnEnded(card:Card, currentValue:number, previousValue:number): void
     {
         if(currentValue >= this.match.board.spreadNumber)
         {
             const { player1, player2 } = this.match.scores
 
             const winner = player1 > player2 ? "player1" : "player2"
-
+            this.gambleboard.data.get('scores')[winner]++
             this.resetMatch()
         }
     }

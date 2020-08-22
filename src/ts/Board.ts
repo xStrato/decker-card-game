@@ -2,7 +2,7 @@ import { GameObjects, Scene } from "phaser";
 import Card from "./Card";
 import BoardService, { BoardServiceConfig } from "./Services/BoardService";
 
-type BoardElement<T> = 
+export type BoardElement<T> = 
 {
   [player:string]: T[]
 }
