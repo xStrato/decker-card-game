@@ -1,6 +1,6 @@
 import { GameObjects, Scene } from "phaser";
 import Card from "./Card";
-import BoardService, { BoardServiceConfig } from "./Services/BoardService";
+import BoardService, { BoardServiceConfig } from "./services/BoardService";
 
 export type BoardElement<T> = 
 {

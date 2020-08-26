@@ -14,7 +14,12 @@ export default class GambleBoard extends GameObjects.Container
     private scorePlayer2Text: GameObjects.Text;
     private infoBar: GameObjects.Rectangle
 
-    constructor(public scene: Scene, public width:number, public height:number, public scores:Score, public initialMoney:number=10000)
+    constructor(
+        public scene: Scene, 
+        public width:number, 
+        public height:number, 
+        public scores:Score, 
+        public initialMoney:number=10000)
     {
         super(scene)
 

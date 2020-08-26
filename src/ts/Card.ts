@@ -1,5 +1,5 @@
 import { Geom, GameObjects, Scene, Types, Display } from "phaser";
-import CardService from "./Services/CardService";
+import CardService from "./services/CardService";
 
 const { Color, Graphics, Group, Text  } = {...Display, ...GameObjects}
 const { Rectangle } = Geom

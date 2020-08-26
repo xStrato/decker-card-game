@@ -1,7 +1,7 @@
 import { Geom, Scene, GameObjects } from "phaser";
 import Match from "./Match";
 import Card from "./Card";
-import GambleBoard from "./Components/GambleBoard";
+import GambleBoard from "./components/GambleBoard";
 
 const { Graphics } = GameObjects
 
