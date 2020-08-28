@@ -104,7 +104,6 @@ export default class Board extends GameObjects.Container
 
     private getCreateCardParams(): BoardServiceConfig
     {
-      console.log()
       const mixUpConfig: BoardServiceConfig = 
       {
           scope: this,

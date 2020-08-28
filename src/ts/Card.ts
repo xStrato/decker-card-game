@@ -42,10 +42,7 @@ export default class Card extends GameObjects.Container
     private textConfig: Types.GameObjects.Text.TextStyle
     public flipState: boolean
     private faceData: CardData
-    /*
-    *
-    * @param {CardData} - Naipes: 1 - clubs (♣), 2 - diamonds (♦), 3 - hearts (♥), 4 - spades (♠)
-    */
+
     constructor(scene: Scene, dimensions: CardDimensions, data: CardData, flipAnimation: boolean = false, flipState: boolean = false)
     {
         super(scene)
@@ -72,7 +69,7 @@ export default class Card extends GameObjects.Container
 
         const layout = new Graphics(this.scene).fillRectShape(new Rectangle(0, 0, this.width, this.height)).fillStyle(0xFFFFFF)
 
-        this.setData({layout})
+        // this.setData({layout})
 
         const text1 = new Text(this.scene, 0, 0, cardNumber, this.textConfig)
         const text2 = new Text(this.scene, 0, 0, cardNumber, this.textConfig)
