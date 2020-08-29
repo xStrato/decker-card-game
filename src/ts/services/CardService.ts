@@ -1,5 +1,5 @@
-import { GameObjects, Scene } from "phaser"
-import Card from "../Card"
+import { GameObjects } from "phaser"
+import Card from "../shared/Card"
 const { Text } = GameObjects
 
 export default class CardService
@@ -26,6 +26,15 @@ export default class CardService
             case '13': return "J"
             default: return num
         }
+    }
+
+    public static setInteration(card: Card): Card
+    {
+        card.setInteractive()
+        card.input.hitArea.x += card.width/2
+        card.input.hitArea.y += card.height/2
+
+        return card
     }
 
     public static standardizeTextDimensions(scope:Card, textObjs:GameObjects.Text[], refSuit:string): void

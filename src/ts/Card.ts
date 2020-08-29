@@ -42,6 +42,7 @@ export default class Card extends GameObjects.Container
     private textConfig: Types.GameObjects.Text.TextStyle
     public flipState: boolean
     private faceData: CardData
+    private layout: GameObjects.Graphics
 
     constructor(scene: Scene, dimensions: CardDimensions, data: CardData, flipAnimation: boolean = false, flipState: boolean = false)
     {
@@ -55,6 +56,7 @@ export default class Card extends GameObjects.Container
       this.textConfig = { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif', color: data.color, fontSize: `${Math.floor(width * .2)}px` }
       this.flipState = flipState
       this.faceData = data
+      this.layout = new Graphics(this.scene).fillRectShape(new Rectangle(0, 0, this.width, this.height)).fillStyle(0xFFFFFF)
 
       this.flip(flipAnimation)
       this.scene.add.existing(this)
@@ -68,8 +70,7 @@ export default class Card extends GameObjects.Container
         cardNumber = this.getCardNumber(cardNumber)
 
         const layout = new Graphics(this.scene).fillRectShape(new Rectangle(0, 0, this.width, this.height)).fillStyle(0xFFFFFF)
-
-        // this.setData({layout})
+        this.layout.setDefaultStyles({ fillStyle: { color:  0xffffff} })
 
         const text1 = new Text(this.scene, 0, 0, cardNumber, this.textConfig)
         const text2 = new Text(this.scene, 0, 0, cardNumber, this.textConfig)
@@ -81,13 +82,12 @@ export default class Card extends GameObjects.Container
         .setColor("#fff")
         .setShadowStroke(true)
 
-        //Creates the naipe symbols under the numbers
+
         const textSuit1 = new Text(this.scene, 0, 0, naipe, this.textConfig)
         const textSuit2 = new Text(this.scene, 0, 0, naipe, this.textConfig)
         const textSuit3 = new Text(this.scene, 0, 0, naipe, this.textConfig).setAngle(180)
         const textSuit4 = new Text(this.scene, 0, 0, naipe, this.textConfig).setAngle(180)
 
-        //Creates main Suit
         let centralSuit = new Text(this.scene, 0,0, naipe, this.textConfig).setFontSize(this.width)
 
         CardService.standardizeTextDimensions(this, [centralSuit, textSuit1, textSuit2, textSuit3, textSuit4], "♦");
@@ -127,11 +127,8 @@ export default class Card extends GameObjects.Container
         const cellSize = this.width * 0.1
 
         const diamond = new Graphics(this.scene, {fillStyle: { color } }).fillRectShape(new Rectangle(0, 0, rectacleSize, rectacleSize))
-        2020
         const textureName = `diamond${Math.floor(Math.random()*100000)}`
         diamond.generateTexture(textureName)
-
-        this.setData({textureName})
 
         const alignConfig:
         Types.Actions.GridAlignConfig = 
@@ -154,7 +151,6 @@ export default class Card extends GameObjects.Container
 
         const group = new Group(this.scene, groupConfig)
         this.add([layout,...group.getChildren()])
-        group.destroy()
     }
 
     private getCardNumber(num: string): string
