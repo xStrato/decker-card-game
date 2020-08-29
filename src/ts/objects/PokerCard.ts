@@ -12,7 +12,7 @@ export default class PokerCard extends Card
     public suit:string
     public number:number
     public color:string
-    public textConfig: Types.GameObjects.Text.TextStyle
+    public textConfig:Types.GameObjects.Text.TextStyle
 
     constructor(cardBaseConfig: CardBaseConfig, pokerCardInfo: PokerCardInfo)
     {
@@ -27,6 +27,7 @@ export default class PokerCard extends Card
 
         this.flip(false)
         this.scene.time.delayedCall(5000, () => this.flip())
+        this.scene.time.delayedCall(10000, () => this.flip())
     }
 
     public flip(animation:boolean=true): void 
@@ -61,18 +62,11 @@ export default class PokerCard extends Card
 
     protected drawBackSide(): void
     {
-        const layout = new Graphics(this.scene, {fillStyle: { color: 0xffffff } })
-        .fillRectShape(new Rectangle(0, 0, this.width, this.height))
-
-        const rectacleSize = this.width/15
+        this.list = []
         const cellSize = this.width * 0.1
-        const color = Color.HexStringToColor(this.color).color
+        const miniRectSize = this.scene.data.get('backPlateRectSize')
 
-        const diamond = new Graphics(this.scene, {fillStyle: { color } })
-        .fillRectShape(new Rectangle(0, 0, rectacleSize, rectacleSize))
-
-        const textureName = `diamond${Math.floor(Math.random()*100000)}`
-        diamond.generateTexture(textureName)
+        console.log(miniRectSize)
 
         const alignConfig:
         Types.Actions.GridAlignConfig = 
@@ -81,27 +75,29 @@ export default class PokerCard extends Card
             height: Math.floor(this.height/cellSize),
             cellWidth: cellSize,
             cellHeight: cellSize,
-            x: rectacleSize,
-            y: rectacleSize
+            x: miniRectSize,
+            y: miniRectSize
         }
         
         const groupConfig: 
         Types.GameObjects.Group.GroupCreateConfig = 
         {
-            key: textureName,
+            key: "redBackPlate",
             frameQuantity: Math.floor(this.height/cellSize) * 10,
             gridAlign: alignConfig
         }
 
         const group = new Group(this.scene, groupConfig)
-        this.add([layout,...group.getChildren()])
+
+        this.add([CardService.generateLayout(this), ...group.getChildren()])
+
         group.destroy()
+        console.log(this.scene.textures)
     }
+
     protected drawFrontSide(): void 
     {
-        const layout = new Graphics(this.scene)
-        .fillRectShape(new Rectangle(0, 0, this.width, this.height))
-        .fillStyle(0xFFFFFF)
+        this.list = []
 
         const cardNumber = CardService.getCardNumber(String(this.number))
         const suit = CardService.getCardSuit(this.suit)
@@ -115,7 +111,6 @@ export default class PokerCard extends Card
         .setFontSize(this.width/3)
         .setColor("#fff")
         .setShadowStroke(true)
-
 
         const textSuit1 = new Text(this.scene, 0, 0, suit, this.textConfig)
         const textSuit2 = new Text(this.scene, 0, 0, suit, this.textConfig)
@@ -149,7 +144,8 @@ export default class PokerCard extends Card
         .lineStyle(1, Color.HexStringToColor(this.color).color, 1)
         .strokeRect(this.width/6, this.height/6, this.width/1.5, this.height/1.5)
 
-        this.add([layout, text1, text2, text3, text4, textSuit1, textSuit2, textSuit3, textSuit4, centralSuit, centerText, centralRect])
+        this.add([CardService.generateLayout(this), text1, text2, text3, text4, textSuit1, textSuit2, textSuit3, textSuit4, centralSuit, centerText, centralRect])
         this.setPosition(this.x, this.y)
+        console.log(this.scene.textures)
     }
 }

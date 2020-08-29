@@ -1,20 +1,16 @@
 import { GameObjects, Scene } from "phaser";
-import Card from "./Card";
+import Card from "./shared/Card";
 import BoardService, { BoardServiceConfig } from "./services/BoardService";
-
-export type BoardElement<T> = 
-{
-  [player:string]: T[]
-}
+import { BoardElement } from "./shared/Types";
 
 export default class Board extends GameObjects.Container
 {
     public height: number
     public width: number
-    private player1: Array<Card>;
-    private player2: Array<Card>;
-    private placeholderPlayer1: Array<GameObjects.Sprite>;
-    private placeholderPlayer2: Array<GameObjects.Sprite>;
+    private player1: Card[];
+    private player2: Card[];
+    private placeholderPlayer1: GameObjects.Sprite[]
+    private placeholderPlayer2: GameObjects.Sprite[]
     private paddingX: number
     private paddingY: number
     private cardWidth: number

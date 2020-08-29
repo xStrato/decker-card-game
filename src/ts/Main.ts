@@ -1,9 +1,9 @@
-import { Geom, Scene, GameObjects } from "phaser";
+import { Geom, Scene, GameObjects, Display } from "phaser";
 import Match from "./Match";
 import Card from "./Card";
 import GambleBoard from "./components/GambleBoard";
 
-const { Graphics } = GameObjects
+const { Graphics, Color } = {...GameObjects, ...Display}
 
 export default class Main extends Scene
 {
@@ -20,13 +20,25 @@ export default class Main extends Scene
         const width = +this.game.config.width
         const height = +this.game.config.height
 
+        this.data.set('backPlateRectSize', width/15) 
+
         this.match = this.scene.add("Match", new Match(), true) as Match
         this.gambleboard = new GambleBoard(this, width, height, {player1: 10, player2: 8})
     }
 
     public create(): void
     {  
-        // this.add.text(200, 160, "New Game", { fontSize: 34 }).setInteractive().on("pointerdown", () => this.resetMatch())
+        const miniRectSize = this.data.get('backPlateRectSize')
+
+        this.add.graphics()
+        .fillStyle(Color.HexStringToColor("#FF0000").color)
+        .fillRect(0, 0, miniRectSize, miniRectSize)
+        .generateTexture("redBackPlate")
+
+        this.add.graphics()
+        .fillStyle(Color.HexStringToColor("#000").color)
+        .fillRect(0, 0, miniRectSize, miniRectSize)
+        .generateTexture("blackBackPlate")
 
         this.match.data.events.on("changedata-counter", this.hasTurnEnded, this)
     }

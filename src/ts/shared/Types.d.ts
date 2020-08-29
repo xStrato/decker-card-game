@@ -1,6 +1,10 @@
 import { Scene, Types } from "phaser";
 import { CardState } from "./Enums";
 
+declare type BoardElement<T> = 
+{
+  [player:string]: T[]
+}
 
 declare type CardBaseConfig = {
     scene: Scene

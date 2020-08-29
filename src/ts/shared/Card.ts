@@ -1,9 +1,7 @@
 import { Scene, GameObjects } from 'phaser'
 import { CardState } from './Enums'
 
-const { Container } = GameObjects
-
-abstract class Card extends Container
+abstract class Card extends GameObjects.Container
 {
     constructor(
         public scene: Scene,

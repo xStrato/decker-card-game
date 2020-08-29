@@ -1,9 +1,17 @@
-import { GameObjects } from "phaser"
+import { GameObjects, Display } from "phaser"
 import Card from "../shared/Card"
-const { Text } = GameObjects
+
+const { Color, Graphics, Group, Text  } = {...Display, ...GameObjects}
 
 export default class CardService
 {
+    public static generateLayout(card: Card): GameObjects.Graphics
+    {
+        return new Graphics(card.scene)
+        .fillStyle(0xFFFFFF)
+        .fillRect(0, 0, card.width, card.height)
+    }
+
     public static getCardSuit(suit: string): string
     {
         switch(suit)
@@ -44,5 +52,21 @@ export default class CardService
             text.setDisplaySize(ref.displayWidth, ref.displayHeight)
             ref.destroy()
         })
+    }
+
+    public static generateCardBackPlate(card:Card, width:number, color:string): void
+    {
+        const rectacleSize = card.width/15
+        const cellSize = width * 0.1
+
+        const diamond = new Graphics(card.scene)
+        .fillStyle(Color.HexStringToColor(color).color)
+        .fillRect(0, 0, rectacleSize, rectacleSize)
+        .generateTexture("cardBackPlate")
+
+        // const textureName = `diamond${Math.floor(Math.random()*100000)}`
+
+        const blitter = card.scene.add.blitter(0, 0, 'cardBackPlate')
+
     }
 }
