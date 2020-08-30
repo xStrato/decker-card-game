@@ -24,7 +24,7 @@ export default class Match extends Scene
         this.placehold = undefined
 
         this.board = new Board(this)
-        this.setupMathAssets()
+        this.setupMatchAssets()
         //makes the central deck
         this.board.setupCardDeck()
         
@@ -87,7 +87,7 @@ export default class Match extends Scene
         })
     }
 
-    private setupMathAssets():void
+    private setupMatchAssets():void
     {
         this.data.set('backPlateRectSize', this.board.cardWidth/15) 
         const miniRectSize = this.data.get('backPlateRectSize')

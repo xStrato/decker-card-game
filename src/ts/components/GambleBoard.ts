@@ -55,7 +55,7 @@ export default class GambleBoard extends GameObjects.Container
         for (let i = 0; i < Math.ceil(this.width*.03); i+=Math.ceil(this.width*.0075))
         {
             const coinPLayer1 = new Coin(this.scene, colors[Phaser.Math.Between(0, colors.length-1)], this.width, this.width, -Math.floor(this.width*.345)+i, -Math.floor(this.width*.0157)+i, value)
-            const coinPlayer2 = new Coin(this.scene, colors[Phaser.Math.Between(0, colors.length-1)], this.width, this.width, Math.floor(this.width*.157)-i, i, "$10000")
+            const coinPlayer2 = new Coin(this.scene, colors[Phaser.Math.Between(0, colors.length-1)], this.width, this.width, Math.floor(this.width*.157)-i, i, value)
 
             this.add([...coinPLayer1.getChildren(), ...coinPlayer2.getChildren()])
         }
