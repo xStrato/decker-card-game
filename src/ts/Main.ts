@@ -1,9 +1,9 @@
-import { Geom, Scene, GameObjects, Display } from "phaser";
-import Match from "./Match";
-import Card from "./Card";
+import { Scene, GameObjects } from "phaser";
+import Match from "./objects/Match";
 import GambleBoard from "./components/GambleBoard";
+import Card from "./shared/Card";
 
-const { Graphics, Color } = {...GameObjects, ...Display}
+const { Graphics } = {...GameObjects }
 
 export default class Main extends Scene
 {
@@ -20,26 +20,12 @@ export default class Main extends Scene
         const width = +this.game.config.width
         const height = +this.game.config.height
 
-        this.data.set('backPlateRectSize', width/15) 
-
         this.match = this.scene.add("Match", new Match(), true) as Match
         this.gambleboard = new GambleBoard(this, width, height, {player1: 10, player2: 8})
     }
 
     public create(): void
     {  
-        const miniRectSize = this.data.get('backPlateRectSize')
-
-        this.add.graphics()
-        .fillStyle(Color.HexStringToColor("#FF0000").color)
-        .fillRect(0, 0, miniRectSize, miniRectSize)
-        .generateTexture("redBackPlate")
-
-        this.add.graphics()
-        .fillStyle(Color.HexStringToColor("#000").color)
-        .fillRect(0, 0, miniRectSize, miniRectSize)
-        .generateTexture("blackBackPlate")
-
         this.match.data.events.on("changedata-counter", this.hasTurnEnded, this)
     }
 
@@ -55,7 +41,7 @@ export default class Main extends Scene
 
             this.gambleboard.data.set('scores', scores)
 
-            const graph = new Graphics(this, {fillStyle: {color: 0x000, alpha: .3}}).fillRectShape(new Geom.Rectangle(0, 0, 640, 360))
+            const graph = new Graphics(this, {fillStyle: {color: 0x000, alpha: .3}}).fillRect(0, 0, 640, 360)
             this.match.scene.pause()
 
             this.children.add(graph)

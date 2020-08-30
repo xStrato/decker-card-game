@@ -1,15 +1,5 @@
-import { Scene, Geom, GameObjects, Input } from "phaser";
-import { type } from "os";
-const { Group, Rectangle, Graphics, Ellipse, Text } = GameObjects
-
-type CoinConfig = {
-    scene:Scene, 
-    colors: number[],
-    width: number,
-    height: number,
-    x:number,
-    y:number
-}
+import { Scene, GameObjects} from "phaser";
+const {  Ellipse, Text } = GameObjects
 
 export default class Coin extends GameObjects.Group
 {

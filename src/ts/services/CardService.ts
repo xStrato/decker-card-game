@@ -1,7 +1,7 @@
 import { GameObjects, Display } from "phaser"
 import Card from "../shared/Card"
 
-const { Color, Graphics, Group, Text  } = {...Display, ...GameObjects}
+const { Color, Graphics, Text  } = {...Display, ...GameObjects}
 
 export default class CardService
 {
@@ -12,31 +12,31 @@ export default class CardService
         .fillRect(0, 0, card.width, card.height)
     }
 
-    public static getCardSuit(suit: string): string
+    public static getCardSuit(suit: number): string
     {
         switch(suit)
         {
-            case '1': return "♣"
-            case '2': return "♦"
-            case '3': return "♥"
-            case '4': return "♠"
-            default: return suit
+            case 1: return "♣"
+            case 2: return "♦"
+            case 3: return "♥"
+            case 4: return "♠"
+            default: return String(suit)
         }
     }
 
-    public static getCardNumber(num: string): string
+    public static getCardNumber(num: number): string
     {
         switch(num)
         {
-            case '1': return "A"
-            case '11': return "K"
-            case '12': return "Q"
-            case '13': return "J"
-            default: return num
+            case 1: return "A"
+            case 11: return "K"
+            case 12: return "Q"
+            case 13: return "J"
+            default: return String(num)
         }
     }
 
-    public static setInteration(card: Card): Card
+    public static setInteration<T extends Card>(card: T): T
     {
         card.setInteractive()
         card.input.hitArea.x += card.width/2

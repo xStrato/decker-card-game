@@ -1,12 +1,8 @@
 import { GameObjects, Scene } from "phaser";
-import Coin from "../Coin";
+import Coin from "../objects/Coin";
+import { Score } from "../shared/Types";
 
 const { Rectangle, Text } = GameObjects
-
-export type Score = {
-    player1: number, 
-    player2: number
-}
 
 export default class GambleBoard extends GameObjects.Container
 {

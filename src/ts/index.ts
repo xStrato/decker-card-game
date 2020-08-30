@@ -1,8 +1,5 @@
-import GameTemplate from './GameTemplate';
-import Phaser from 'phaser'
+import Phaser, { Game } from 'phaser'
 import Main from './Main';
-import Main2 from './Main2';
-
 
 const config = {
   type: Phaser.AUTO,
@@ -10,7 +7,7 @@ const config = {
   height: 360*1,
   backgroundColor: "#00AA37",
   title: "Template",
-  scene: [Main2]
+  scene: [Main]
 }
 
-new GameTemplate(config)
+new Game(config)

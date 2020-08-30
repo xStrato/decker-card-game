@@ -21,4 +21,3 @@ abstract class Card extends GameObjects.Container
 }
 
 export default Card
-

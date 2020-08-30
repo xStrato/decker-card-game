@@ -1,15 +1,15 @@
-import { GameObjects, Types, Display, Geom } from 'phaser'
+import { GameObjects, Types, Display } from 'phaser'
 import CardService from '../services/CardService'
 import Card from '../shared/Card'
 import { CardState } from '../shared/Enums'
 import { CardBaseConfig, PokerCardInfo } from '../shared/Types'
 
 const { Color, Graphics, Group, Text  } = {...Display, ...GameObjects}
-const { Rectangle } = Geom
 
 export default class PokerCard extends Card
 {
-    public suit:string
+    public label:string
+    public suit:number
     public number:number
     public color:string
     public textConfig:Types.GameObjects.Text.TextStyle
@@ -17,17 +17,17 @@ export default class PokerCard extends Card
     constructor(cardBaseConfig: CardBaseConfig, pokerCardInfo: PokerCardInfo)
     {
         const { scene, width, height, x, y, state } = cardBaseConfig
-        const { suit, number, color, textConfig } = pokerCardInfo
+        const { label, suit, number, color, textConfig } = pokerCardInfo
 
         super(scene, width, height, x, y, state)
+        
+        this.label = label
         this.suit = suit
         this.number = number
         this.color = color
         this.textConfig = textConfig
 
         this.flip(false)
-        this.scene.time.delayedCall(5000, () => this.flip())
-        this.scene.time.delayedCall(10000, () => this.flip())
     }
 
     public flip(animation:boolean=true): void 
@@ -66,8 +66,6 @@ export default class PokerCard extends Card
         const cellSize = this.width * 0.1
         const miniRectSize = this.scene.data.get('backPlateRectSize')
 
-        console.log(miniRectSize)
-
         const alignConfig:
         Types.Actions.GridAlignConfig = 
         {
@@ -82,7 +80,7 @@ export default class PokerCard extends Card
         const groupConfig: 
         Types.GameObjects.Group.GroupCreateConfig = 
         {
-            key: "redBackPlate",
+            key: this.color.includes("#000") ? "blackBackPlate" : "redBackPlate",
             frameQuantity: Math.floor(this.height/cellSize) * 10,
             gridAlign: alignConfig
         }
@@ -92,14 +90,13 @@ export default class PokerCard extends Card
         this.add([CardService.generateLayout(this), ...group.getChildren()])
 
         group.destroy()
-        console.log(this.scene.textures)
     }
 
     protected drawFrontSide(): void 
     {
         this.list = []
 
-        const cardNumber = CardService.getCardNumber(String(this.number))
+        const cardNumber = CardService.getCardNumber(this.number)
         const suit = CardService.getCardSuit(this.suit)
 
         const text1 = new Text(this.scene, 0, 0, cardNumber, this.textConfig)
@@ -122,8 +119,7 @@ export default class PokerCard extends Card
         CardService.standardizeTextDimensions(this, [centralSuit, textSuit1, textSuit2, textSuit3, textSuit4], "♦");
         CardService.standardizeTextDimensions(this, [text1, text2, text3, text4, centerText], "5");
 
-        const layoutConfig = 
-        {
+        const layoutConfig = {
             paddingX: text1.displayWidth * .3,
             paddingY: text1.displayHeight * .3
         }
@@ -146,6 +142,5 @@ export default class PokerCard extends Card
 
         this.add([CardService.generateLayout(this), text1, text2, text3, text4, textSuit1, textSuit2, textSuit3, textSuit4, centralSuit, centerText, centralRect])
         this.setPosition(this.x, this.y)
-        console.log(this.scene.textures)
     }
 }

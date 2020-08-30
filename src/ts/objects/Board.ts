@@ -1,19 +1,21 @@
 import { GameObjects, Scene } from "phaser";
-import Card from "./shared/Card";
-import BoardService, { BoardServiceConfig } from "./services/BoardService";
-import { BoardElement } from "./shared/Types";
+import BoardService from "../services/BoardService";
+import CardService from "../services/CardService";
+import Card from "../shared/Card";
+import { BoardElement, BoardServiceConfig } from "../shared/Types";
+import PokerCard from "./PokerCard";
 
 export default class Board extends GameObjects.Container
 {
     public height: number
     public width: number
-    private player1: Card[];
-    private player2: Card[];
+    private player1: PokerCard[];
+    private player2: PokerCard[];
     private placeholderPlayer1: GameObjects.Sprite[]
     private placeholderPlayer2: GameObjects.Sprite[]
     private paddingX: number
     private paddingY: number
-    private cardWidth: number
+    public cardWidth: number
     private cardHeight: number
     public spreadNumber: number
 
@@ -35,7 +37,7 @@ export default class Board extends GameObjects.Container
       this.scene.add.existing(this)
     }
 
-    get players(): BoardElement<Card>
+    get players(): BoardElement<PokerCard>
     {
       return {
           player1: this.player1,
@@ -54,9 +56,26 @@ export default class Board extends GameObjects.Container
     public shuffleAndCut(): this
     {
         //Placeholder cards for Player 1 at Top of the board
-        this.placeholderPlayer1 = BoardService.placeholderAt(this, this.spreadNumber, this.paddingX, this.height-this.cardHeight-this.paddingY, this.cardWidth, this.cardHeight)
+        const configPlayer1: BoardServiceConfig = {
+          scope: this, 
+          spreadNumber: this.spreadNumber, 
+          x: this.paddingX, 
+          y: this.height-this.cardHeight-this.paddingY, 
+          width: this.cardWidth, 
+          height: this.cardHeight
+        }
+        this.placeholderPlayer1 = BoardService.placeholderAt(configPlayer1)
+
         //Placeholder cards for Player 2 at Bottom of the board
-        this.placeholderPlayer2 = BoardService.placeholderAt(this, this.spreadNumber, this.paddingX, this.paddingY, this.cardWidth, this.cardHeight)
+        const configPlayer2: BoardServiceConfig = {
+          scope: this, 
+          spreadNumber: this.spreadNumber, 
+          x: this.paddingX, 
+          y: this.paddingY, 
+          width: this.cardWidth, 
+          height: this.cardHeight
+        }
+        this.placeholderPlayer2 = BoardService.placeholderAt(configPlayer2)
 
         this.player1 = BoardService.mixUp(this.getCreateCardParams())
         this.player2 = BoardService.mixUp(this.getCreateCardParams())
@@ -81,7 +100,7 @@ export default class Board extends GameObjects.Container
 
         if(setIteration)
         {
-          card.setInteration()
+          CardService.setInteration(card)
             .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
             .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
             .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))
@@ -91,7 +110,7 @@ export default class Board extends GameObjects.Container
       return this
     }
 
-    public requestADeal(label: string = ""): Card
+    public requestADeal(label: string = ""): PokerCard
     {
       const card = BoardService.requestNewCard(this.getCreateCardParams())
       card.label = label
@@ -130,9 +149,10 @@ export default class Board extends GameObjects.Container
 
         if(i >= qtdCards-1)
         {
-          const card = BoardService.requestNewCard(mixUpConfig)
-            .setAngle(90)
-            .setInteration()
+          const card = BoardService.requestNewCard(mixUpConfig).setAngle(90)
+            
+          CardService
+          .setInteration(card)
             .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
             .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
             .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))

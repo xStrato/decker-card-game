@@ -1,14 +1,15 @@
-import Card from "../Card";
+import PokerCard from "../objects/PokerCard";
 import { Scene, GameObjects, Types } from "phaser";
-import Board from "../Board";
+import { BoardServiceConfig } from "../shared/Types";
+import { CardState } from "../shared/Enums";
 
 const { Graphics, Group } = GameObjects
 
 export default class BoardService
 {
-    public static mixUp(mixUpConfig: BoardServiceConfig): Array<Card>
+    public static mixUp(mixUpConfig: BoardServiceConfig): PokerCard[]
     {
-        const player: Array<Card> = []
+        const player: PokerCard[] = []
         const { spreadNumber } = mixUpConfig
 
         for (let i = 0; i < spreadNumber; i++)
@@ -21,28 +22,33 @@ export default class BoardService
         return player
     }
 
-    public static requestNewCard(mixUpConfig: BoardServiceConfig): Card
+    public static requestNewCard(mixUpConfig: BoardServiceConfig): PokerCard
     {
-        const { scope, x, y, width, height } = mixUpConfig
+        const { scope: {scene}, x, y, width, height } = mixUpConfig
 
-        return new Card(scope.scene, {x,y,width, height}, 
-            {
-                naipe: `${Phaser.Math.Between(1, 4)}`, 
-                cardNumber: `${Phaser.Math.Between(1, 13)}`, 
-                color: this.setColor()
-            })
+        const baseConfig = {scene, x, y, width, height, state: CardState.BACK_SIDE}
+        const color = this.getColor()
+        const cardInfo = {
+            label: "",
+            suit: Phaser.Math.Between(1, 4),
+            number: Phaser.Math.Between(1, 13),
+            color,
+            textConfig: { 
+                fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif', 
+                color, 
+                fontSize: `${Math.floor(width * .2)}px`
+            }
+        }
+        return new PokerCard(baseConfig, cardInfo)
     }
 
-    public static deal(board: Board, player: string, reveal: boolean = false):void
+    public static placeholderAt(boardServiceConfig: BoardServiceConfig):GameObjects.Sprite[]
     {
-    }
+        const { scope, x, y, width, height, spreadNumber } = boardServiceConfig
 
-    public static placeholderAt(scope:Board, spreadNumber:number, x:number, y:number, width:number, height:number): Array<GameObjects.Sprite>
-    {
-        const blankCard = this.drawCardStroke(scope.scene, 0, 0, width, height)
-
-        blankCard.generateTexture("blankCard")
-
+        this.drawCardStroke(scope.scene, 0, 0, width, height)
+        .generateTexture("blankCard")
+        
         const alignConfig:
         Types.Actions.GridAlignConfig = 
         {
@@ -61,7 +67,6 @@ export default class BoardService
             frameQuantity: spreadNumber,
             gridAlign: alignConfig
         }
-
         
         const group = new Group(scope.scene, groupConfig)
         scope.add([...group.getChildren()])
@@ -74,24 +79,5 @@ export default class BoardService
       return new Graphics(scene).lineStyle(1, 0x000, 1).strokeRect(x, y, w, h)
     }
 
-    private static setColor = (): string => Phaser.Math.Between(0,1) === 1 ? '#FF0000' : '#000'
-
-    private static placeChairAlt(scope:Board, spreadNumber:number, x:number, y:number, width:number, height:number)
-    {
-        for (let i = 0; i < spreadNumber; i++)
-        {
-            //Draw card strokes in the boardGroup
-            const blanckCard = this.drawCardStroke(scope.scene, x*i, y, width, height)
-            scope.add(blanckCard)
-        }
-    }
-}
-
-export type BoardServiceConfig = {
-    scope: Board
-    spreadNumber:number
-    x:number
-    y:number
-    width:number
-    height:number
+    private static getColor = (): string => Phaser.Math.Between(0,1) === 1 ? '#FF0000' : '#000'
 }
