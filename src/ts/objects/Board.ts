@@ -1,7 +1,6 @@
 import { GameObjects, Scene } from "phaser";
 import BoardService from "../services/BoardService";
 import CardService from "../services/CardService";
-import Card from "../shared/Card";
 import { BoardElement, BoardServiceConfig } from "../shared/Types";
 import PokerCard from "./PokerCard";
 
@@ -34,6 +33,8 @@ export default class Board extends GameObjects.Container
       this.paddingX = (this.width - (this.spreadNumber  * this.cardWidth))/3
 
       this.setPosition(0, 0, this.width, this.height)
+      this.setDataEnabled()
+      this.data.set('shufflesCount', 0)
       this.scene.add.existing(this)
     }
 
@@ -85,6 +86,9 @@ export default class Board extends GameObjects.Container
 
     public playCards(player:string, setIteration:boolean=false, reveal:boolean=false): this
     {
+      const effects = ['Quad', 'Back', 'Sine.easeInOut', 'Expo.easeIn', 'Back.easeInOut']
+      const sortedEffect = effects[Phaser.Math.Between(0, effects.length-1)]
+
       this.players[player].forEach((card, index) => {
 
         this.scene.tweens.add({
@@ -92,10 +96,15 @@ export default class Board extends GameObjects.Container
           x: this.placeholders[player][index].x - ((this.width)/2),
           y: player.includes("player2") ? this.height-this.cardHeight-this.paddingY : this.paddingY,
           duration: 2000,
-          ease: 'Power2',
+          ease: sortedEffect,
           angle: 0,
-          delay: 1000*index,
-          onComplete: reveal ? () => this.scene.time.delayedCall(50*index, () => card.flip()) : null,
+          delay: 500*index,
+          onComplete: reveal ? () => {
+            this.scene.time.delayedCall(index, () => {
+              card.flip()
+              this.data.values.shufflesCount++
+            });
+          } : null,
         })
 
         if(setIteration)

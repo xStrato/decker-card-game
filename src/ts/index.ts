@@ -1,11 +1,11 @@
 import Phaser, { Game } from 'phaser'
-import Main from './Main';
+import Main from './scenes/Main';
 
 const config = {
-  type: Phaser.AUTO,
+  type: Phaser.WEBGL,
   width: 640*1,
   height: 360*1,
-  backgroundColor: "#00AA37",
+  backgroundColor: "#00AA55", //007F55
   title: "Template",
   scene: [Main]
 }

@@ -37,10 +37,10 @@ export default class PokerCard extends Card
             this.scene.tweens.add({
                 onStart: () => this.removeInteractive(),
                 targets: this,
-                x: this.x + 10,
-                y: this.y + 10,
-                duration: 400,
-                ease: 'Power2',
+                x: `+=${(this.width*0.08)}`,
+                y: `+=${(this.width*0.08)}`,
+                duration: 500,
+                ease: 'Sine',
                 yoyo: true,
                 onComplete: () => CardService.setInteration(this),
             })

@@ -1,8 +1,9 @@
 import { Scene, GameObjects, Display } from "phaser";
-import Board from "./Board";
-import PokerCard from "./PokerCard";
+import Board from "../objects/Board";
+import PokerCard from "../objects/PokerCard";
 import { Score } from "../shared/Types";
 import CardService from "../services/CardService";
+import { CardState } from "../shared/Enums";
 
 const { Graphics, Color } = {...GameObjects, ...Display}
 
@@ -18,7 +19,6 @@ export default class Match extends Scene
 
     public create(): void
     {
-        console.log(this.scene)
         this.data.set('counter', 0)
 
         this.placehold = undefined
@@ -27,15 +27,10 @@ export default class Match extends Scene
         this.setupMatchAssets()
         //makes the central deck
         this.board.setupCardDeck()
-        
         this.board.shuffleAndCut()
-        this.board.playCards("player1", true)
-        this.board.playCards("player2", false, true)
+        
+        this.board.data.events.on('changedata-shufflesCount', this.enableGameplay, this)
 
-        this.events
-        .on("cardSeleted", this.cardSeleted, this)
-        .on("cardSeletedOver", this.cardSeletedOver, this)
-        .on("cardSeletedOut", this.cardSeletedOut, this)
     }
 
     get scores(): Score
@@ -46,9 +41,20 @@ export default class Match extends Scene
         }
     }
 
-    public cardSeleted(card:PokerCard): void
+    public enableGameplay(board:Board, currentValue:number): void
     {
-        if(card.label !== 'deck')
+        if(currentValue >= 5)
+        {
+            this.events
+            .on("cardSeleted", this.cardSeleted, this)
+            .on("cardSeletedOver", this.cardSeletedOver, this)
+            .on("cardSeletedOut", this.cardSeletedOut, this)
+        }
+    }
+
+    private cardSeleted(card:PokerCard): void
+    {
+        if(card.state !== CardState.BACK_SIDE && card.label !== 'deck')
         {
             this.placehold?.destroy()
             card.flip()
@@ -57,7 +63,7 @@ export default class Match extends Scene
         }
     }
 
-    public cardSeletedOver(card: PokerCard): void
+    private cardSeletedOver(card: PokerCard): void
     {
         if(card.label === 'deck')
         {
@@ -72,12 +78,12 @@ export default class Match extends Scene
         this.add.existing(this.placehold)
     }
 
-    public cardSeletedOut(card: PokerCard): void
+    private cardSeletedOut(card: PokerCard): void
     {
         this.placehold?.destroy()
     }
 
-    public enableInteraction(player:string): void
+    private enableInteraction(player:string): void
     {
         this.board.players[player].forEach(card => {
             CardService.setInteration(card)
@@ -95,10 +101,12 @@ export default class Match extends Scene
         .fillStyle(Color.HexStringToColor("#FF0000").color)
         .fillRect(0, 0, miniRectSize, miniRectSize)
         .generateTexture("redBackPlate")
+        .setAlpha(0)
 
         this.add.graphics()
         .fillStyle(Color.HexStringToColor("#000").color)
         .fillRect(0, 0, miniRectSize, miniRectSize)
         .generateTexture("blackBackPlate")
+        .setAlpha(0)
     }
 }

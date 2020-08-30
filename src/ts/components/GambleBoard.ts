@@ -20,24 +20,25 @@ export default class GambleBoard extends GameObjects.Container
         super(scene)
 
         this.scene.add.existing(this)
-        this.create()
     }
 
-    public create(): void
+    public create(): this
     {
         this.setDataEnabled()
         this.data.set('scores', this.scores)
 
-        const panel = new Rectangle(this.scene, 0 , 0, this.width*.8 , this.height*.3, 0xff6699, .2)
+        const panel = new Rectangle(this.scene, 0 , 0, this.width*.8 , this.height*.3, 0x000, .2)
         this.add(panel)
 
-        const colors = [0x356EA3, 0x856093, 0xEF7D9C, 0xFFAFA7, 0x7AABB0,0xF0CCC4]
+        const colors = [0x003A5B, 0x612E8B, 0xCC008F, 0x0CA5D2, 0xFF2161, 0xFFAD0C]
         
         this.createCoins(colors, `$${this.initialMoney}`)
         this.createInfoBar(panel);
         
         this.setPosition(this.width*.5, this.height*.5)
         this.data.events.on('changedata-scores', this.updateScore, this)
+
+        return this
     }
 
     public updateScore(): void
@@ -71,14 +72,21 @@ export default class GambleBoard extends GameObjects.Container
         const { player1, player2 } = this.data.get('scores')
         
         const fontSize = `${Math.ceil(this.infoBar.width*.13)}px`
+        const fontSizeLabel = `${Math.ceil(this.infoBar.width*.1)}px`
 
-        this.scorePlayer1Text = new Text(this.scene, 0, -this.infoBar.height*.26,`${player1}`, {fontSize:fontSize, color: "#c3c3c3"})
+        this.scorePlayer1Text = new Text(this.scene, 0, -this.infoBar.height*.26,`${player1}`, {fontSize, color: "#c3c3c3"})
         this.scorePlayer1Text.setX(`${player1}`.length > 1 ? -this.infoBar.width*.040: 0)
+
+        const player1Label = new Text(this.scene, 0, -this.infoBar.height*.26,`CPU`, {fontSize:fontSizeLabel, color: "#00AA55"})
+        player1Label.setPosition(-player1Label.width*.35, -infoBarPanel.height)
         
-        this.scorePlayer2Text = new Text(this.scene, -this.infoBar.width*.75, -this.infoBar.height*.26,`${player2}`, {fontSize:fontSize, color: "#c3c3c3"})
+        this.scorePlayer2Text = new Text(this.scene, -this.infoBar.width*.75, -this.infoBar.height*.26,`${player2}`, {fontSize, color: "#c3c3c3"})
         this.scorePlayer2Text.setX(`${player2}`.length > 1 ? -this.infoBar.width*.80 : -this.infoBar.width*.75)
 
-        this.add([this.infoBar, infoBarPanel, this.scorePlayer1Text, this.scorePlayer2Text])
+        const player2Label = new Text(this.scene, 0, -this.infoBar.height*.26,`Player`, {fontSize:fontSizeLabel, color: "#00AA55"})
+        player2Label.setPosition(-(infoBarPanel.width + player2Label.width), -infoBarPanel.height)
+
+        this.add([this.infoBar, infoBarPanel, this.scorePlayer1Text, player1Label, this.scorePlayer2Text, player2Label])
         return this
     }
 }
