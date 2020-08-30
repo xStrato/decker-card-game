@@ -1,15 +1,16 @@
 import { GameObjects, Scene } from "phaser";
 import BoardService from "../services/BoardService";
 import CardService from "../services/CardService";
+import Card from "../shared/Card";
+import { IBoard } from "../shared/Contracts/IBoard";
 import { BoardElement, BoardServiceConfig } from "../shared/Types";
-import PokerCard from "./PokerCard";
 
-export default class Board extends GameObjects.Container
+class Board extends GameObjects.Container implements IBoard<Card>
 {
     public height: number
     public width: number
-    private player1: PokerCard[];
-    private player2: PokerCard[];
+    private player1: Card[];
+    private player2: Card[];
     private placeholderPlayer1: GameObjects.Sprite[]
     private placeholderPlayer2: GameObjects.Sprite[]
     private paddingX: number
@@ -38,7 +39,7 @@ export default class Board extends GameObjects.Container
       this.scene.add.existing(this)
     }
 
-    get players(): BoardElement<PokerCard>
+    get players(): BoardElement<Card>
     {
       return {
           player1: this.player1,
@@ -62,7 +63,7 @@ export default class Board extends GameObjects.Container
           spreadNumber: this.spreadNumber, 
           x: this.paddingX, 
           y: this.height-this.cardHeight-this.paddingY, 
-          width: this.cardWidth, 
+          width: this.cardWidth,
           height: this.cardHeight
         }
         this.placeholderPlayer1 = BoardService.placeholderAt(configPlayer1)
@@ -101,7 +102,7 @@ export default class Board extends GameObjects.Container
           delay: 500*index,
           onComplete: reveal ? () => {
             this.scene.time.delayedCall(index, () => {
-              card.flip()
+              card.flip(true)
               this.data.values.shufflesCount++
             });
           } : null,
@@ -119,11 +120,11 @@ export default class Board extends GameObjects.Container
       return this
     }
 
-    public requestADeal(label: string = ""): PokerCard
+    public requestADeal(name:string=""): Card
     {
-      const card = BoardService.requestNewCard(this.getCreateCardParams())
-      card.label = label
-      return card;
+      return BoardService
+      .requestNewCard(this.getCreateCardParams())
+      .setName(name)
     }
 
     private getCreateCardParams(): BoardServiceConfig
@@ -156,22 +157,21 @@ export default class Board extends GameObjects.Container
             height: this.cardHeight
         }
 
+        const card = BoardService
+          .requestNewCard(mixUpConfig)
+          .setAngle(90)
+          .setName('deck')
+
         if(i >= qtdCards-1)
         {
-          const card = BoardService.requestNewCard(mixUpConfig).setAngle(90)
-            
           CardService
           .setInteration(card)
             .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
             .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
             .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))
-
-            card.label = 'deck'
-        }else
-        {
-          const card = BoardService.requestNewCard(mixUpConfig).setAngle(90)
-          card.label = 'deck'
         }
       }
     }
 }
+
+export default Board

@@ -26,12 +26,10 @@ export default class BoardService
     {
         const { scope: {scene}, x, y, width, height } = mixUpConfig
 
-        const baseConfig = {scene, x, y, width, height, state: CardState.BACK_SIDE}
+        const baseConfig = {scene, number: Phaser.Math.Between(1, 13), x, y, width, height, state: CardState.BACK_SIDE}
         const color = this.getColor()
         const cardInfo = {
-            label: "",
             suit: Phaser.Math.Between(1, 4),
-            number: Phaser.Math.Between(1, 13),
             color,
             textConfig: { 
                 fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif', 

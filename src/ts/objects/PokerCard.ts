@@ -8,7 +8,6 @@ const { Color, Graphics, Group, Text  } = {...Display, ...GameObjects}
 
 export default class PokerCard extends Card
 {
-    public label:string
     public suit:number
     public number:number
     public color:string
@@ -16,12 +15,11 @@ export default class PokerCard extends Card
 
     constructor(cardBaseConfig: CardBaseConfig, pokerCardInfo: PokerCardInfo)
     {
-        const { scene, width, height, x, y, state } = cardBaseConfig
-        const { label, suit, number, color, textConfig } = pokerCardInfo
+        const { scene, number, width, height, x, y, state } = cardBaseConfig
+        const { suit, color, textConfig } = pokerCardInfo
 
-        super(scene, width, height, x, y, state)
+        super(scene, number, width, height, x, y, state)
         
-        this.label = label
         this.suit = suit
         this.number = number
         this.color = color

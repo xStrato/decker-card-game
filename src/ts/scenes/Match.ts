@@ -1,9 +1,8 @@
 import { Scene, GameObjects, Display } from "phaser";
 import Board from "../objects/Board";
-import PokerCard from "../objects/PokerCard";
 import { Score } from "../shared/Types";
-import CardService from "../services/CardService";
 import { CardState } from "../shared/Enums";
+import Card from "../shared/Card";
 
 const { Graphics, Color } = {...GameObjects, ...Display}
 
@@ -25,7 +24,6 @@ export default class Match extends Scene
 
         this.board = new Board(this)
         this.setupMatchAssets()
-        //makes the central deck
         this.board.setupCardDeck()
         this.board.shuffleAndCut()
         
@@ -41,7 +39,7 @@ export default class Match extends Scene
         }
     }
 
-    public enableGameplay(board:Board, currentValue:number): void
+    public enableGameplay(board: Board, currentValue:number): void
     {
         if(currentValue >= 5)
         {
@@ -52,20 +50,21 @@ export default class Match extends Scene
         }
     }
 
-    private cardSeleted(card:PokerCard): void
+    private cardSeleted(card: Card): void
     {
-        if(card.state !== CardState.BACK_SIDE && card.label !== 'deck')
+        console.log(card.name)
+        if(card.state !== CardState.BACK_SIDE && card.name !== 'deck')
         {
             this.placehold?.destroy()
-            card.flip()
+            card.flip(true)
 
             this.data.values.counter++
         }
     }
 
-    private cardSeletedOver(card: PokerCard): void
+    private cardSeletedOver(card: Card): void
     {
-        if(card.label === 'deck')
+        if(card.name === 'deck')
         {
             this.placehold = new Graphics(this).fillStyle(0x000, 0.3)
             .fillRect(card.x-card.height, card.y, card.height, card.width)
@@ -78,19 +77,9 @@ export default class Match extends Scene
         this.add.existing(this.placehold)
     }
 
-    private cardSeletedOut(card: PokerCard): void
+    private cardSeletedOut(card: Card): void
     {
         this.placehold?.destroy()
-    }
-
-    private enableInteraction(player:string): void
-    {
-        this.board.players[player].forEach(card => {
-            CardService.setInteration(card)
-          .on("pointerdown", () => this.events.emit("cardSeleted", card))
-          .on("pointerover", () => this.events.emit("cardSeletedOver", card))
-          .on("pointerout", () => this.events.emit("cardSeletedOut", card))
-        })
     }
 
     private setupMatchAssets():void

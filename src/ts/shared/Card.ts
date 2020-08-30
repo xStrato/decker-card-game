@@ -5,6 +5,7 @@ abstract class Card extends GameObjects.Container
 {
     constructor(
         public scene: Scene,
+        public number: number,
         public width: number,
         public height: number,
         public x: number,

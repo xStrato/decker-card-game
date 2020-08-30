@@ -9,6 +9,7 @@ declare type BoardElement<T> =
 
 declare type CardBaseConfig = {
     scene: Scene
+    number: number
     x: number
     y: number
     width: number
@@ -17,9 +18,7 @@ declare type CardBaseConfig = {
 }
 
 declare type PokerCardInfo = {
-    label:string
     suit: number
-    number: number
     color: string
     textConfig: Types.GameObjects.Text.TextStyle
 }
