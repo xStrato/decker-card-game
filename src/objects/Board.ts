@@ -2,7 +2,7 @@ import { GameObjects, Scene } from "phaser";
 import BoardService from "../services/BoardService";
 import CardService from "../services/CardService";
 import Card from "../shared/Card";
-import { IBoard } from "../shared/Contracts/IBoard";
+import { IBoard } from "../shared/contracts/IBoard";
 import { BoardElement, BoardServiceConfig } from "../shared/Types";
 
 class Board extends GameObjects.Container implements IBoard<Card>
