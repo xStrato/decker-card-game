@@ -3,6 +3,7 @@ import Match from "../scenes/Match";
 import GambleBoard from "../components/GambleBoard";
 import Card from "../shared/Card";
 import { CardState } from "../shared/Enums";
+import { Player } from "../shared/Types";
 
 const { Graphics } = {...GameObjects }
 
@@ -44,32 +45,32 @@ export default class Main extends Scene
 
     public updateInfoBar(event:string, target:Card): void
     {
-        const scores = this.gambleboard.data.get('scores')
         const potInc:number = this.gambleboard.data.get('potInc')
         const potBet:number = this.gambleboard.data.get('potBet')
 
-        const { player1, player2 } = this.match.scores
+        const { player1, player2 } = this.gambleboard.data.get('scores')
 
-        const amount:number = Math.ceil(((player1+player2)*.075)+potBet/10)
+        const amount:number = Math.ceil((player1+player2)*potBet*.03)
 
         if(event === 'cardSeletedOver' && target.state === CardState.FRONT_SIDE)
         {
-            if(target.name !== 'deck')
-            {
-                console.log("deck")
-            }
+            if(target.name === 'deck') return
             this.gambleboard.data.set('potInc', (potInc+amount))
         }
 
         if(event === 'cardSeletedOut' && target.state === CardState.FRONT_SIDE)
         {
-            if(target.name !== 'deck') return
+            if(target.name === 'deck') return
             this.gambleboard.data.set('potInc', (potInc-potInc))
         }
 
         if(event === "cardSeleted" && target.state === CardState.FRONT_SIDE)
         {
-            if(target.name !== 'deck') return
+            if(target.name === 'deck')
+            {
+                this.gambleboard.data.set('potBet', potBet)
+                return
+            }
             this.gambleboard.data.set('potBet', potBet+amount)
             this.gambleboard.data.set('potInc', 0)
         }
@@ -109,6 +110,8 @@ export default class Main extends Scene
 
         this.time.delayedCall(2000, () => {
             
+            this.gambleboard.data.set('potBet', 200)
+
             this.tweens.add({
                 targets: [...targets],
                 duration: 500,

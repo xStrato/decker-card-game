@@ -103,7 +103,7 @@ class Board extends GameObjects.Container implements IBoard<Card>
           targets: card,
           x: this.placeholders[player][index].x - ((this.width)/2),
           y: player.includes("player2") ? this.height-this.cardWidth_Height.entity1-this.paddingX_Y.entity1 : this.paddingX_Y.entity1,
-          duration: 2000,
+          duration: 1000,
           ease: sortedEffect,
           angle: 0,
           delay: 500*index,

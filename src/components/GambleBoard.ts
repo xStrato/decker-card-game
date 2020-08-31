@@ -59,9 +59,17 @@ export default class GambleBoard extends GameObjects.Container
         return this
     }
 
-    private updatePotBet(sender:this,value:number): void
+    public updatePotBet(sender:this,value:number): void
     {
         this.potTextBet.setText(`>${value}`)
+
+        this.scene.tweens.add({
+            targets: this.potTextBet,
+            duration: 100,
+            scaleX: 1.2,
+            ease: "Linear",
+            yoyo: true
+        })
     }
 
     private updatePotInc(sender:this,value:number): void
