@@ -3,20 +3,16 @@ import BoardService from "../services/BoardService";
 import CardService from "../services/CardService";
 import Card from "../shared/Card";
 import { IBoard } from "../shared/contracts/IBoard";
-import { BoardElement, BoardServiceConfig } from "../shared/Types";
+import { Player, BoardServiceConfig, BinaryEntity } from "../shared/Types";
 
 class Board extends GameObjects.Container implements IBoard<Card>
 {
     public height: number
     public width: number
-    private player1: Card[];
-    private player2: Card[];
-    private placeholderPlayer1: GameObjects.Sprite[]
-    private placeholderPlayer2: GameObjects.Sprite[]
-    private paddingX: number
-    private paddingY: number
-    public cardWidth: number
-    private cardHeight: number
+    private playersCard: BinaryEntity<Card[]>
+    private playersPlaceholder: BinaryEntity<GameObjects.Sprite[]>
+    private paddingX_Y: BinaryEntity<number>
+    public cardWidth_Height: BinaryEntity<number>
     public spreadNumber: number
 
     constructor(public scene:Scene)
@@ -24,14 +20,18 @@ class Board extends GameObjects.Container implements IBoard<Card>
       super(scene)
       this.width = +this.scene.game.config.width
       this.height = +this.scene.game.config.height
-
-      this.cardWidth = this.width * .11
-      this.cardHeight = this.cardWidth + (100*.3)
-
-      this.paddingY = this.height * .05
       
-      this.spreadNumber = Math.floor((this.width-this.cardWidth)/ Math.floor(this.cardWidth + (this.cardWidth * .5)))
-      this.paddingX = (this.width - (this.spreadNumber  * this.cardWidth))/3
+      this.cardWidth_Height = {
+        entity0: this.width * .11,
+        entity1: (this.width * .11) + (100*.3)
+      }
+
+      this.spreadNumber = Math.floor((this.width-this.cardWidth_Height.entity0)/ Math.floor(this.cardWidth_Height.entity0 + (this.cardWidth_Height.entity0 * .5)))
+      
+      this.paddingX_Y = { 
+        entity0: (this.width - (this.spreadNumber  * this.cardWidth_Height.entity0))/3, 
+        entity1: this.height * .05
+      }
 
       this.setPosition(0, 0, this.width, this.height)
       this.setDataEnabled()
@@ -39,48 +39,55 @@ class Board extends GameObjects.Container implements IBoard<Card>
       this.scene.add.existing(this)
     }
 
-    get players(): BoardElement<Card>
+    get players(): Player<Card>
     {
       return {
-          player1: this.player1,
-          player2: this.player2
+          player1: this.playersCard.entity0,
+          player2: this.playersCard.entity1
       }
     }
 
-    get placeholders(): BoardElement<GameObjects.Sprite>
+    get placeholders(): Player<GameObjects.Sprite>
     {
         return {
-          player1: this.placeholderPlayer1, 
-          player2: this.placeholderPlayer2
+          player1: this.playersPlaceholder.entity0, 
+          player2: this.playersPlaceholder.entity1
         }
     }
 
     public shuffleAndCut(): this
     {
+        let player1: Card[] | GameObjects.Sprite[]
+        let player2: Card[] | GameObjects.Sprite[]
+
         //Placeholder cards for Player 1 at Top of the board
         const configPlayer1: BoardServiceConfig = {
           scope: this, 
           spreadNumber: this.spreadNumber, 
-          x: this.paddingX, 
-          y: this.height-this.cardHeight-this.paddingY, 
-          width: this.cardWidth,
-          height: this.cardHeight
+          x: this.paddingX_Y.entity0, 
+          y: this.height-this.cardWidth_Height.entity1-this.paddingX_Y.entity1, 
+          width: this.cardWidth_Height.entity0,
+          height: this.cardWidth_Height.entity1
         }
-        this.placeholderPlayer1 = BoardService.placeholderAt(configPlayer1)
-
         //Placeholder cards for Player 2 at Bottom of the board
         const configPlayer2: BoardServiceConfig = {
           scope: this, 
           spreadNumber: this.spreadNumber, 
-          x: this.paddingX, 
-          y: this.paddingY, 
-          width: this.cardWidth, 
-          height: this.cardHeight
+          x: this.paddingX_Y.entity0, 
+          y: this.paddingX_Y.entity1, 
+          width: this.cardWidth_Height.entity0, 
+          height: this.cardWidth_Height.entity1
         }
-        this.placeholderPlayer2 = BoardService.placeholderAt(configPlayer2)
 
-        this.player1 = BoardService.mixUp(this.getCreateCardParams())
-        this.player2 = BoardService.mixUp(this.getCreateCardParams())
+        player1 = BoardService.placeholderAt(configPlayer1)
+        player2 = BoardService.placeholderAt(configPlayer2)
+
+        this.playersPlaceholder = { entity0: player1, entity1: player2 }
+
+        player1 = BoardService.mixUp(this.getCreateCardParams())
+        player2 = BoardService.mixUp(this.getCreateCardParams())
+
+        this.playersCard = { entity0: player1, entity1: player2 }
 
         return this
     }
@@ -95,22 +102,18 @@ class Board extends GameObjects.Container implements IBoard<Card>
         this.scene.tweens.add({
           targets: card,
           x: this.placeholders[player][index].x - ((this.width)/2),
-          y: player.includes("player2") ? this.height-this.cardHeight-this.paddingY : this.paddingY,
+          y: player.includes("player2") ? this.height-this.cardWidth_Height.entity1-this.paddingX_Y.entity1 : this.paddingX_Y.entity1,
           duration: 2000,
           ease: sortedEffect,
           angle: 0,
           delay: 500*index,
-          onComplete: reveal ? () => {
-            this.scene.time.delayedCall(index, () => {
-              card.flip(true)
-              this.data.values.shufflesCount++
-            });
-          } : null,
+          onComplete: reveal ? () => this.handleFlip(card) : null,
         })
 
         if(setIteration)
         {
-          CardService.setInteration(card)
+          CardService
+          .setInteration(card)
             .on("pointerdown", () => this.scene.events.emit("cardSeleted", card))
             .on("pointerover", () => this.scene.events.emit("cardSeletedOver", card))
             .on("pointerout", () => this.scene.events.emit("cardSeletedOut", card))
@@ -118,6 +121,12 @@ class Board extends GameObjects.Container implements IBoard<Card>
       })
 
       return this
+    }
+
+    private handleFlip(card:Card)
+    {
+      card.flip(true)
+      this.data.values.shufflesCount++
     }
 
     public requestADeal(name:string=""): Card
@@ -133,28 +142,29 @@ class Board extends GameObjects.Container implements IBoard<Card>
       {
           scope: this,
           spreadNumber: this.spreadNumber,
-          x: this.width-this.cardWidth+(Math.floor(this.cardWidth*.15)),
-          y: (this.height/2 - this.cardHeight/2+this.paddingY)-(Math.floor(this.cardWidth*.15)),
-          width: this.cardWidth,
-          height: this.cardHeight
+          x: this.width-this.cardWidth_Height.entity0+(Math.floor(this.cardWidth_Height.entity0*.15)),
+          y: (this.height/2 - this.cardWidth_Height.entity1/2+this.paddingX_Y.entity1)-(Math.floor(this.cardWidth_Height.entity0*.15)),
+          width: this.cardWidth_Height.entity0,
+          height: this.cardWidth_Height.entity1
       }
       return mixUpConfig
     }
 
     public setupCardDeck():void
     {
-      const qtdCards = (Math.floor(this.cardWidth*.15))
+      const qtdCards = (Math.floor(this.cardWidth_Height.entity0*.15))
+      const increment = (Math.floor(this.cardWidth_Height.entity0*.015))
 
-      for (let i = 0; i <= qtdCards; i+=(Math.floor(this.cardWidth*.015)))
+      for (let i = 0; i <= qtdCards; i+=increment)
       {
         const mixUpConfig: BoardServiceConfig = 
         {
             scope: this,
             spreadNumber: this.spreadNumber,
-            x: (this.width-this.cardWidth) + i,
-            y: (this.height/2 - this.cardHeight/2+this.paddingY) - i,
-            width: this.cardWidth,
-            height: this.cardHeight
+            x: (this.width-this.cardWidth_Height.entity0) + i,
+            y: (this.height/2 - this.cardWidth_Height.entity1/2+this.paddingX_Y.entity1) - i,
+            width: this.cardWidth_Height.entity0,
+            height: this.cardWidth_Height.entity1
         }
 
         const card = BoardService
@@ -162,7 +172,7 @@ class Board extends GameObjects.Container implements IBoard<Card>
           .setAngle(90)
           .setName('deck')
 
-        if(i >= qtdCards-1)
+        if(i >= qtdCards-increment)
         {
           CardService
           .setInteration(card)

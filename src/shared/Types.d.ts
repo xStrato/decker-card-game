@@ -2,7 +2,13 @@ import { Scene, Types } from "phaser";
 import Board from "../objects/Board";
 import { CardState } from "./Enums";
 
-declare type BoardElement<T> = 
+declare type BinaryEntity<T> = 
+{
+    entity0: T
+    entity1: T
+}
+
+declare type Player<T> = 
 {
   [player:string]: T[]
 }
@@ -33,7 +39,7 @@ declare type BoardServiceConfig = {
 }
 
 
-declare type Score = {
+declare type Players = {
   player1: number, 
   player2: number
 }

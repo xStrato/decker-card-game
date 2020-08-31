@@ -1,6 +1,6 @@
 import { GameObjects, Scene } from "phaser";
 import Coin from "../objects/Coin";
-import { Score } from "../shared/Types";
+import { BinaryEntity, Players } from "../shared/Types";
 
 const { Rectangle, Text } = GameObjects
 
@@ -8,17 +8,25 @@ export default class GambleBoard extends GameObjects.Container
 {
     private scorePlayer1Text: GameObjects.Text;
     private scorePlayer2Text: GameObjects.Text;
+    private potTextInc: GameObjects.Text;
+    private potTextBet: GameObjects.Text;
     private infoBar: GameObjects.Rectangle
+    private coins: BinaryEntity<Coin>
+    private bags: Players
+    private potInc:number
+    private potBet:number
 
     constructor(
-        public scene: Scene, 
+        public scene: Scene,
         public width:number, 
         public height:number, 
-        public scores:Score, 
+        public scores:Players,
         public initialMoney:number=10000)
     {
         super(scene)
-
+        this.bags = { player1: 10000, player2: 10000 }
+        this.potInc = 0
+        this.potBet = 200
         this.scene.add.existing(this)
     }
 
@@ -26,6 +34,9 @@ export default class GambleBoard extends GameObjects.Container
     {
         this.setDataEnabled()
         this.data.set('scores', this.scores)
+        this.data.set('bags', this.bags)
+        this.data.set('potBet', this.potBet)
+        this.data.set('potInc', this.potInc)
 
         const panel = new Rectangle(this.scene, 0 , 0, this.width*.8 , this.height*.3, 0x000, .2)
         this.add(panel)
@@ -35,13 +46,40 @@ export default class GambleBoard extends GameObjects.Container
         this.createCoins(colors, `$${this.initialMoney}`)
         this.createInfoBar(panel);
         
+        this.potTextBet.setText(`>${this.potBet}`)
+        this.potTextInc.setText(`+${this.potInc}`)
+        
         this.setPosition(this.width*.5, this.height*.5)
+
         this.data.events.on('changedata-scores', this.updateScore, this)
+        this.data.events.on('changedata-bags', this.updateBags, this)
+        this.data.events.on('changedata-potInc', this.updatePotInc, this)
+        this.data.events.on('changedata-potBet', this.updatePotBet, this)
 
         return this
     }
 
-    public updateScore(): void
+    private updatePotBet(sender:this,value:number): void
+    {
+        this.potTextBet.setText(`>${value}`)
+    }
+
+    private updatePotInc(sender:this,value:number): void
+    {
+        this.potTextInc.setText(`+${value}`)
+    }
+
+    private updateBags(): void
+    {
+        const { entity0: coin1, entity1: coin2 } = this.coins
+
+        const bags = this.data.get('bags')
+
+        coin2.updateText(`$${bags.player1}`)
+        coin1.updateText(`$${bags.player2}`)
+    }
+
+    private updateScore(): void
     {
         const { player1, player2 } = this.data.get('scores')
         
@@ -49,14 +87,31 @@ export default class GambleBoard extends GameObjects.Container
         this.scorePlayer1Text.setX(`${player1}`.length > 1 ? -this.infoBar.width*.040: 0)
         this.scorePlayer2Text.setText(`${this.data.get('scores')["player2"]}`)
         this.scorePlayer2Text.setX(`${player2}`.length > 1 ? -this.infoBar.width*.80 : -this.infoBar.width*.75)
+
+        this.scene.tweens.add({
+            targets: [this.scorePlayer1Text, this.scorePlayer2Text],
+            alpha: { from: 1, to: 0 },
+            repeat: 2,
+            duration: 600,
+            ease: "Back.easeInOut",
+            yoyo: true
+        })
     }
 
     private createCoins(colors:number[], value:string): this
     {
-        for (let i = 0; i < Math.ceil(this.width*.03); i+=Math.ceil(this.width*.0075))
+        const qtdCoins = Math.ceil(this.width*.03)
+        const increment = Math.ceil(this.width*.0075)
+
+        for (let i = 0; i < qtdCoins; i+=increment)
         {
             const coinPLayer1 = new Coin(this.scene, colors[Phaser.Math.Between(0, colors.length-1)], this.width, this.width, -Math.floor(this.width*.345)+i, -Math.floor(this.width*.0157)+i, value)
             const coinPlayer2 = new Coin(this.scene, colors[Phaser.Math.Between(0, colors.length-1)], this.width, this.width, Math.floor(this.width*.157)-i, i, value)
+            
+            if(i >= qtdCoins-increment)
+            {
+                this.coins = { entity0: coinPLayer1, entity1: coinPlayer2 }
+            }
 
             this.add([...coinPLayer1.getChildren(), ...coinPlayer2.getChildren()])
         }
@@ -73,6 +128,7 @@ export default class GambleBoard extends GameObjects.Container
         
         const fontSize = `${Math.ceil(this.infoBar.width*.13)}px`
         const fontSizeLabel = `${Math.ceil(this.infoBar.width*.1)}px`
+        const fontSizePot = `${Math.ceil(this.infoBar.width*.11)}px`
 
         this.scorePlayer1Text = new Text(this.scene, 0, -this.infoBar.height*.26,`${player1}`, {fontSize, color: "#c3c3c3"})
         this.scorePlayer1Text.setX(`${player1}`.length > 1 ? -this.infoBar.width*.040: 0)
@@ -86,7 +142,10 @@ export default class GambleBoard extends GameObjects.Container
         const player2Label = new Text(this.scene, 0, -this.infoBar.height*.26,`Player`, {fontSize:fontSizeLabel, color: "#00AA55"})
         player2Label.setPosition(-(infoBarPanel.width + player2Label.width), -infoBarPanel.height)
 
-        this.add([this.infoBar, infoBarPanel, this.scorePlayer1Text, player1Label, this.scorePlayer2Text, player2Label])
+        this.potTextInc = new Text(this.scene, -this.infoBar.width*.575, -this.infoBar.height*.5,``, {fontSize: fontSizePot, color: "#fff"})
+        this.potTextBet = new Text(this.scene, -this.infoBar.width*.575, -this.infoBar.height*.05,``, {fontSize: fontSizePot, color: "#FFF000"})
+
+        this.add([this.potTextBet,this.potTextInc, this.infoBar, infoBarPanel, this.scorePlayer1Text, player1Label, this.scorePlayer2Text, player2Label])
         return this
     }
 }

@@ -1,6 +1,6 @@
 import { Scene, GameObjects, Display } from "phaser";
 import Board from "../objects/Board";
-import { Score } from "../shared/Types";
+import { Players } from "../shared/Types";
 import { CardState } from "../shared/Enums";
 import Card from "../shared/Card";
 
@@ -28,10 +28,9 @@ export default class Match extends Scene
         this.board.shuffleAndCut()
         
         this.board.data.events.on('changedata-shufflesCount', this.enableGameplay, this)
-
     }
 
-    get scores(): Score
+    get scores(): Players
     {
         return {
             player1: this.board.players["player1"].map(card => card.number).reduce((acc, cur) => acc+cur),
@@ -52,7 +51,8 @@ export default class Match extends Scene
 
     private cardSeleted(card: Card): void
     {
-        console.log(card.name)
+        this.events.emit('updateInfoBar', 'cardSeleted', card)
+        
         if(card.state !== CardState.BACK_SIDE && card.name !== 'deck')
         {
             this.placehold?.destroy()
@@ -60,31 +60,35 @@ export default class Match extends Scene
 
             this.data.values.counter++
         }
+
+        if(card.name.includes('deck'))
+        {
+            this.events.emit('endTurn', card)
+        }
     }
 
     private cardSeletedOver(card: Card): void
     {
-        if(card.name === 'deck')
+        this.placehold = new Graphics(this).fillStyle(0x000, 0.4)
+
+        switch(card.name)
         {
-            this.placehold = new Graphics(this).fillStyle(0x000, 0.3)
-            .fillRect(card.x-card.height, card.y, card.height, card.width)
-        }else
-        {
-            this.placehold = new Graphics(this).fillStyle(0x000, 0.3)
-            .fillRect(card.x, card.y, card.width, card.height)
+            case 'deck': this.placehold.fillRect(card.x-card.height, card.y, card.height, card.width);break
+            default: this.placehold.fillRect(card.x, card.y, card.width, card.height);break
         }
-        
+        this.events.emit('updateInfoBar', 'cardSeletedOver', card)
         this.add.existing(this.placehold)
     }
 
     private cardSeletedOut(card: Card): void
     {
         this.placehold?.destroy()
+        this.events.emit('updateInfoBar', 'cardSeletedOut', card)
     }
 
     private setupMatchAssets():void
     {
-        this.data.set('backPlateRectSize', this.board.cardWidth/15) 
+        this.data.set('backPlateRectSize', this.board.cardWidth_Height.entity0/15) 
         const miniRectSize = this.data.get('backPlateRectSize')
         this.add.graphics()
         .fillStyle(Color.HexStringToColor("#FF0000").color)

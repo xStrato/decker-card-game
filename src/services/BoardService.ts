@@ -2,6 +2,7 @@ import PokerCard from "../objects/PokerCard";
 import { Scene, GameObjects, Types } from "phaser";
 import { BoardServiceConfig } from "../shared/Types";
 import { CardState } from "../shared/Enums";
+import Board from "../objects/Board";
 
 const { Graphics, Group } = GameObjects
 
@@ -71,7 +72,6 @@ export default class BoardService
 
         return (group.getChildren() as GameObjects.Sprite[])
     }
-
     private static drawCardStroke(scene:Scene, x:number, y:number, w:number, h:number): GameObjects.Graphics
     {
       return new Graphics(scene).lineStyle(1, 0x000, 1).strokeRect(x, y, w, h)
