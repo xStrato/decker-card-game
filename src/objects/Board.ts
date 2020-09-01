@@ -10,6 +10,7 @@ class Board extends GameObjects.Container implements IBoard<Card>
     public height: number
     public width: number
     private playersCard: BinaryEntity<Card[]>
+    public deckCards: Card[]
     private playersPlaceholder: BinaryEntity<GameObjects.Sprite[]>
     private paddingX_Y: BinaryEntity<number>
     public cardWidth_Height: BinaryEntity<number>

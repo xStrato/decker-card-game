@@ -25,7 +25,7 @@ export default class GambleBoard extends GameObjects.Container
         public initialMoney:number=10000)
     {
         super(scene)
-        this.bags = { player1: 10000, player2: 10000 }
+        this.bags = { player1: initialMoney, player2: initialMoney }
         this.potInc = 0
         this.potBet = 200
         this.scene.add.existing(this)

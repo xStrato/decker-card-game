@@ -4,6 +4,7 @@ import GambleBoard from "../components/GambleBoard";
 import Card from "../shared/Card";
 import { CardState } from "../shared/Enums";
 import { Player } from "../shared/Types";
+import { format } from "path";
 
 const { Graphics } = {...GameObjects }
 
@@ -25,7 +26,7 @@ export default class Main extends Scene
         this.height = +this.game.config.height
 
         this.match = this.scene.add("Match", new Match(), true) as Match
-        this.gambleboard = new GambleBoard(this, this.width, this.height, {player1: 0, player2: 0}).create()
+        this.gambleboard = new GambleBoard(this, this.width, this.height, {player1: 0, player2: 0}, 200).create()
     }
 
     public create(): void
@@ -84,13 +85,55 @@ export default class Main extends Scene
         }
     }
 
+    public endTurn(card:Card, currentValue:number): void
+    {
+        this.updateGameComponents(card, currentValue)
+
+        const { player1, player2 } = this.gambleboard.data.get('bags')
+
+        if(player1 <= 0 || player2 <= 0)
+        {
+            const graph = new Graphics(this, {fillStyle: {color: 0x000, alpha: .3}})
+            .fillRect(0, 0, this.width, this.height)
+        
+            this.children.add(graph)
+            
+            this.match.scene.pause()
+
+            const cardsPlayer1 = this.match.board.players['player1']
+            const cardsPlayer2 = this.match.board.players['player2']
+
+            this.tweens.add({
+                targets: [...cardsPlayer1, ...cardsPlayer2],
+                alpha: { from: 1, to: 0 },
+                repeat: 5,
+                duration: 1000,
+                ease: "Back",
+                onComplete: () => this.game.events.emit('gameover', this)
+            })
+
+            const textPlayer = this.add.text(0, 0, `${player1 <= 0 ? 'CPU' : 'PLAYER'}`, { fontSize: 70, color: "#fff000" })
+            const textWinner = this.add.text(0, 0, "WINNER", { fontSize: 70, color: "#fff000" })
+            textWinner.setPosition(this.width/2-textWinner.width/2, textWinner.height*.5)
+            textPlayer. setPosition(this.width/2-textPlayer.width/2, (this.height*.8)-textPlayer.height*.5)
+
+            this.tweens.add({
+                targets: [textPlayer, textWinner],
+                scaleY: { from: 0.1, to: 1, ease: "Bounce", repeat: -1, duration: 5000, yoyo: true },
+                scaleX: { from: 0.1, to: 1, ease: "Back", repeat: -1, duration: 5000, yoyo: true },
+            })
+
+            return
+        }
+    }
+
     private setupCards(): void
     {
         this.match.board.playCards("player1", true)
         this.match.board.playCards("player2", false, true)
     }
 
-    public endTurn(card:Card, currentValue:number): void
+    public updateGameComponents(card:Card, currentValue:number): void
     {
         if(currentValue >= this.match.board.spreadNumber || card.name?.includes('deck'))
         {
@@ -151,13 +194,13 @@ export default class Main extends Scene
 
         const scores = this.gambleboard.data.get('scores')
         const bags = this.gambleboard.data.get('bags')
-        const pot = this.gambleboard.data.get('potBet')
+        const potBet = this.gambleboard.data.get('potBet')
 
         scores[winner]++
-        bags[winner] += pot
-        bags[loser] -= pot
+        bags[winner] += potBet
+        bags[loser] -= potBet
 
-        this.gambleboard.data.set('potBet', pot)
+        this.gambleboard.data.set('potBet', potBet)
         this.gambleboard.data.set('bags', bags)
         this.gambleboard.data.set('scores', scores)
     }

@@ -1,4 +1,4 @@
-import Phaser, { Game } from 'phaser'
+import Phaser, { Game, Scene } from 'phaser'
 import Main from './scenes/Main';
 
 const config = {
@@ -10,4 +10,7 @@ const config = {
   scene: [Main]
 }
 
-new Game(config)
+new Game(config).events.on('gameover', (main:Main)=> {
+  main.match.scene.stop()
+  main.scene.restart()
+})
