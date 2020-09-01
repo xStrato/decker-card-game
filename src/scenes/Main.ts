@@ -54,13 +54,21 @@ export default class Main extends Scene
 
         if(event === 'cardSeletedOver' && target.state === CardState.FRONT_SIDE)
         {
-            if(target.name === 'deck') return
+            if(target.name === 'deck')
+            {
+                this.gambleboard.sendHoldCommand(false)
+                return
+            }
             this.gambleboard.data.set('potInc', (potInc+amount))
         }
 
         if(event === 'cardSeletedOut' && target.state === CardState.FRONT_SIDE)
         {
-            if(target.name === 'deck') return
+            if(target.name === 'deck')
+            {
+                this.gambleboard.sendHoldCommand(true)
+                return
+            }
             this.gambleboard.data.set('potInc', (potInc-potInc))
         }
 

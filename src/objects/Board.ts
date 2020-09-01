@@ -129,7 +129,7 @@ class Board extends GameObjects.Container implements IBoard<Card>
       this.data.values.shufflesCount++
     }
 
-    public requestADeal(name:string=""): Card
+    public requestADeal(name:string): Card
     {
       return BoardService
       .requestNewCard(this.getCreateCardParams())

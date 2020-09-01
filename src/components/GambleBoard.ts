@@ -8,6 +8,7 @@ export default class GambleBoard extends GameObjects.Container
 {
     private scorePlayer1Text: GameObjects.Text;
     private scorePlayer2Text: GameObjects.Text;
+    private holdText: GameObjects.Text;
     private potTextInc: GameObjects.Text;
     private potTextBet: GameObjects.Text;
     private infoBar: GameObjects.Rectangle
@@ -51,6 +52,12 @@ export default class GambleBoard extends GameObjects.Container
         
         this.setPosition(this.width*.5, this.height*.5)
 
+        const fontSize = `${Math.ceil(this.infoBar.width*.13)}px`
+        this.holdText = new Text(this.scene, -this.infoBar.width*.535, -this.infoBar.height*.26,`HOLD!`, {fontSize, color: "#FFAD0C"})
+        .setVisible(false)
+
+        this.add(this.holdText)
+
         this.data.events.on('changedata-scores', this.updateScore, this)
         this.data.events.on('changedata-bags', this.updateBags, this)
         this.data.events.on('changedata-potInc', this.updatePotInc, this)
@@ -59,8 +66,19 @@ export default class GambleBoard extends GameObjects.Container
         return this
     }
 
+    public sendHoldCommand(command:boolean)
+    {
+        this.holdText.setVisible(!command)
+        this.potTextBet.setVisible(command)
+        this.potTextInc.setVisible(command)
+    }
+
     public updatePotBet(sender:this,value:number): void
     {
+        this.holdText.setVisible(false)
+        this.potTextBet.setVisible(true)
+        this.potTextInc.setVisible(true)
+
         this.potTextBet.setText(`>${value}`)
 
         this.scene.tweens.add({
