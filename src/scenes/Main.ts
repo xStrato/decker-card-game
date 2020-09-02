@@ -3,8 +3,6 @@ import Match from "../scenes/Match";
 import GambleBoard from "../components/GambleBoard";
 import Card from "../shared/Card";
 import { CardState } from "../shared/Enums";
-import { Player } from "../shared/Types";
-import { format } from "path";
 
 const { Graphics } = {...GameObjects }
 
@@ -25,8 +23,8 @@ export default class Main extends Scene
         this.width = +this.game.config.width
         this.height = +this.game.config.height
 
-        this.match = this.scene.add("Match", new Match(), true) as Match
-        this.gambleboard = new GambleBoard(this, this.width, this.height, {player1: 0, player2: 0}, 200).create()
+        this.match = this.scene.add("Match", Match, true) as Match
+        this.gambleboard = new GambleBoard(this, this.width, this.height, {player1: 0, player2: 0}, 10000).create()
     }
 
     public create(): void
@@ -109,11 +107,32 @@ export default class Main extends Scene
                 repeat: 5,
                 duration: 1000,
                 ease: "Back",
-                onComplete: () => this.game.events.emit('gameover', this)
+                onComplete: () => {
+
+                    const reset = new GameObjects.Text(this, 0, 0, "Play Again!", { fontSize: `${this.width*.07}px`})
+                    .setTintFill(0xFFF000, 0xFFF000, 0xFF2200, 0xFF2200)
+                    .setStroke("#FFF", 3)
+                    .setInteractive()
+                    .on("pointerdown", () => this.game.events.emit("resetGame", this))
+
+                    reset.setPosition(this.width/2-reset.width/2, this.height/2-reset.height/2)
+                    this.children.add(reset)
+
+                    this.tweens.add({
+                        targets: [reset],
+                        alpha: { from: 0.01, to: 1, ease: "Linear", repeat: -1, duration: 1000, yoyo: true }
+                    })
+                }
             })
 
-            const textPlayer = this.add.text(0, 0, `${player1 <= 0 ? 'CPU' : 'PLAYER'}`, { fontSize: 70, color: "#fff000" })
-            const textWinner = this.add.text(0, 0, "WINNER", { fontSize: 70, color: "#fff000" })
+            const textPlayer = this.add.text(0, 0, "WINNER", { fontSize: this.width*.11 })
+            .setTintFill(0xCC008F, 0x0CA5D2, 0xFF2161, 0xFFAD0C)
+            .setStroke("#FFF", 5)
+
+            const textWinner = this.add.text(0, 0, `${player2 <= 0 ? 'CPU' : 'PLAYER'}`, { fontSize: this.width*.11 })
+            .setTintFill(0xCC008F, 0x0CA5D2, 0xFF2161, 0xFFAD0C)
+            .setStroke("#FFF", 5)
+
             textWinner.setPosition(this.width/2-textWinner.width/2, textWinner.height*.5)
             textPlayer. setPosition(this.width/2-textPlayer.width/2, (this.height*.8)-textPlayer.height*.5)
 
@@ -121,6 +140,7 @@ export default class Main extends Scene
                 targets: [textPlayer, textWinner],
                 scaleY: { from: 0.1, to: 1, ease: "Bounce", repeat: -1, duration: 5000, yoyo: true },
                 scaleX: { from: 0.1, to: 1, ease: "Back", repeat: -1, duration: 5000, yoyo: true },
+                angle: { from: 10, to: 0, ease: "Back", repeat: -1, duration: 5000, yoyo: true }
             })
 
             return

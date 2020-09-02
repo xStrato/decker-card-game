@@ -53,7 +53,8 @@ export default class GambleBoard extends GameObjects.Container
         this.setPosition(this.width*.5, this.height*.5)
 
         const fontSize = `${Math.ceil(this.infoBar.width*.13)}px`
-        this.holdText = new Text(this.scene, -this.infoBar.width*.535, -this.infoBar.height*.26,`HOLD!`, {fontSize, color: "#FFAD0C"})
+        this.holdText = new Text(this.scene, -this.infoBar.width*.535, -this.infoBar.height*.26,`HOLD!`, {fontSize, color: "#FFF000"})
+        .setTintFill(0xCC008F, 0x0CA5D2, 0xFF2161, 0xFFAD0C)
         .setVisible(false)
 
         this.add(this.holdText)
@@ -118,7 +119,7 @@ export default class GambleBoard extends GameObjects.Container
             targets: [this.scorePlayer1Text, this.scorePlayer2Text],
             alpha: { from: 1, to: 0 },
             repeat: 2,
-            duration: 600,
+            duration: 700,
             ease: "Back.easeInOut",
             yoyo: true
         })
