@@ -7,6 +7,7 @@ const config = {
   height: 360*2,
   backgroundColor: "#00AA55",
   title: "Template",
+  audio: { disableWebAudio: true },
   loader: { path: "assets" },
   scene: [Base]
 }

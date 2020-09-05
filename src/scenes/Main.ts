@@ -25,16 +25,16 @@ export default class Main extends Scene
     public preload(): void
     {
 
-        this.load.audio('coin', ['audio/coin.ogg', 'audio/coin.mp3'])
-        this.load.audio('music', ['audio/music.mp3'])
-        this.load.audio('card_flip', ['audio/card_flip.ogg', 'audio/card_flip.mp3'])
-        this.load.audio('shuffle', ['audio/shuffle.ogg', 'audio/shuffle.mp3'])
+        this.load.audio('coin', ['audio/coin.ogg'])
+        this.load.audio('music', ['audio/music.ogg'])
+        this.load.audio('card_flip', ['audio/card_flip.ogg'])
+        this.load.audio('shuffle', ['audio/shuffle.ogg'])
 
         this.width = +this.game.config.width
         this.height = +this.game.config.height
 
         this.match = this.scene.add("Match", Match, true) as Match
-        this.gambleboard = new GambleBoard(this, this.width, this.height, {player1: 0, player2: 0}, 10000).create()
+        this.gambleboard = new GambleBoard(this, this.width, this.height, {player1: 0, player2: 0}, 200).create()
     }
 
     public create(): void
@@ -42,7 +42,8 @@ export default class Main extends Scene
         this.coinSound = this.sound.add('coin', { volume: 2 })
         this.flipSound = this.sound.add('card_flip', { volume: 2 })
         this.shuffleSound = this.sound.add('shuffle', { volume: 1 })
-        this.sound.add('music', { volume: .4 }).play()
+        this.music = this.sound.add('music', { volume: .4 })
+        this.music.play()
 
         this.match.data.events.on("changedata-counter", this.endTurn, this)
         this.match.data.events.on("endTurn", this.endTurn, this)
@@ -199,7 +200,7 @@ export default class Main extends Scene
             
             this.gambleboard.data.set('potBet', 200)
             this.shuffleSound?.play()
-            
+
             this.tweens.add({
                 targets: [...targets],
                 duration: 500,

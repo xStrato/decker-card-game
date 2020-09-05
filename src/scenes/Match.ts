@@ -3,7 +3,6 @@ import Board from "../objects/Board";
 import { Players } from "../shared/Types";
 import { CardState } from "../shared/Enums";
 import Card from "../shared/Card";
-import Main from "./Main";
 
 const { Graphics, Color } = {...GameObjects, ...Display}
 

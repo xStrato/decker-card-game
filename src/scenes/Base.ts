@@ -1,4 +1,4 @@
-import { Scene, GameObjects } from "phaser";
+import { Scene, GameObjects, Sound } from "phaser";
 import Main from "./Main";
 
 export default class Base extends Scene
