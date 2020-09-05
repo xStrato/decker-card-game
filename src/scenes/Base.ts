@@ -1,4 +1,4 @@
-import { Scene, GameObjects, Sound } from "phaser";
+import { Scene, GameObjects } from "phaser";
 import Main from "./Main";
 
 export default class Base extends Scene
@@ -38,10 +38,10 @@ export default class Base extends Scene
         
         const command1 = new GameObjects.Text(this, 0, 0, "L-Click (Deck of cards):", { fontSize: `${this.width*.04}px`, color: "#FFF000"})
         command1.setPosition(this.width/2-command1.width/2, this.height*.30)
-        const command1Desc = new GameObjects.Text(this, 0, 0, "Sends HOLD stopping the bet and ends the turn", { fontSize: `${this.width*.035}px`, color: "#FFF"})
+        const command1Desc = new GameObjects.Text(this, 0, 0, "HOLD: stop betting, ends the turn", { fontSize: `${this.width*.035}px`, color: "#FFF"})
         command1Desc.setPosition(this.width/2-command1Desc.width/2, this.height*.38)
 
-        const command2 = new GameObjects.Text(this, 0, 0, "L-Click (Rival cards):", { fontSize: `${this.width*.04}px`, color: "#FFF000"})
+        const command2 = new GameObjects.Text(this, 0, 0, "L-Click (Rival card):", { fontSize: `${this.width*.04}px`, color: "#FFF000"})
         command2.setPosition(this.width/2-command2.width/2, this.height*.50)
         const command2Desc = new GameObjects.Text(this, 0, 0, "Raises the bet and reveals one of his cards", { fontSize: `${this.width*.035}px`, color: "#FFF"})
         command2Desc.setPosition(this.width/2-command2Desc.width/2, this.height*.58)

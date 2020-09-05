@@ -102,8 +102,8 @@ export default class GambleBoard extends GameObjects.Container
 
         const bags = this.data.get('bags')
 
-        coin2.updateText(`$${bags.player1}`)
-        coin1.updateText(`$${bags.player2}`)
+        coin2.updateText(`$${bags.player1}`, "+")
+        coin1.updateText(`$${bags.player2}`, "-")
     }
 
     private updateScore(): void

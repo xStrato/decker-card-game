@@ -2,7 +2,6 @@ import PokerCard from "../objects/PokerCard";
 import { Scene, GameObjects, Types } from "phaser";
 import { BoardServiceConfig } from "../shared/Types";
 import { CardState } from "../shared/Enums";
-import Board from "../objects/Board";
 
 const { Graphics, Group } = GameObjects
 

@@ -40,9 +40,9 @@ export default class Main extends Scene
     public create(): void
     {  
         this.coinSound = this.sound.add('coin', { volume: 3 })
-        this.flipSound = this.sound.add('card_flip', { volume: 3 })
+        this.flipSound = this.sound.add('card_flip', { volume: 2 })
         this.shuffleSound = this.sound.add('shuffle', { volume: 1 })
-        this.music = this.sound.add('music', { volume: .3 })
+        this.music = this.sound.add('music', { volume: .6, loop: true })
         this.music.play()
 
         this.match.data.events.on("changedata-counter", this.endTurn, this)
@@ -129,7 +129,10 @@ export default class Main extends Scene
                     .setTintFill(0xFFF000, 0xFFF000, 0xFF2200, 0xFF2200)
                     .setStroke("#FFF", 3)
                     .setInteractive()
-                    .on("pointerdown", () => this.game.events.emit("resetGame", this))
+                    .on("pointerdown", () => {
+                        this.music.stop()
+                        this.game.events.emit("resetGame", this)
+                    })
 
                     reset.setPosition(this.width/2-reset.width/2, this.height/2-reset.height/2)
                     this.children.add(reset)

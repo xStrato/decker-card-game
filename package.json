@@ -9,9 +9,10 @@
     "start:compile": "tsc -w",
     "start": "webpack-dev-server --mode development --open"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "xStrato",
+  "license": "MIT",
+  "homepage": "",
+  "keywords": ["decker", "card", "game"],
   "dependencies": {
     "phaser": "^3.24.1"
   },
