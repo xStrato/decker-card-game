@@ -34,15 +34,15 @@ export default class Main extends Scene
         this.height = +this.game.config.height
 
         this.match = this.scene.add("Match", Match, true) as Match
-        this.gambleboard = new GambleBoard(this, this.width, this.height, {player1: 0, player2: 0}, 200).create()
+        this.gambleboard = new GambleBoard(this, this.width, this.height, {player1: 0, player2: 0}, 10000).create()
     }
 
     public create(): void
     {  
-        this.coinSound = this.sound.add('coin', { volume: 2 })
-        this.flipSound = this.sound.add('card_flip', { volume: 2 })
+        this.coinSound = this.sound.add('coin', { volume: 3 })
+        this.flipSound = this.sound.add('card_flip', { volume: 3 })
         this.shuffleSound = this.sound.add('shuffle', { volume: 1 })
-        this.music = this.sound.add('music', { volume: .4 })
+        this.music = this.sound.add('music', { volume: .3 })
         this.music.play()
 
         this.match.data.events.on("changedata-counter", this.endTurn, this)
@@ -92,7 +92,6 @@ export default class Main extends Scene
         {
             if(target.name === 'deck')
             {
-                this.coinSound.play()
                 this.gambleboard.data.set('potBet', potBet)
                 return
             }
@@ -174,6 +173,7 @@ export default class Main extends Scene
     {
         if(currentValue >= this.match.board.spreadNumber || card.name?.includes('deck'))
         {
+            this.coinSound.play()
             const cardsPlayer1 = this.match.board.players['player1']
             const cardsPlayer2 = this.match.board.players['player2']
 
