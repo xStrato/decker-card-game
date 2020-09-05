@@ -19,8 +19,6 @@ export default class Base extends Scene
 
         this.main = this.scene.add("Main", Main, false) as Main
 
-        console.log(this.width*.08)
-
         const edges = new GameObjects.Graphics(this)
         .lineStyle(this.width*.03, 0x8D5D4B, 1)
         .strokeRoundedRect(0, 0, this.width, this.height, this.width*.08)

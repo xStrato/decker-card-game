@@ -3,6 +3,7 @@ import Board from "../objects/Board";
 import { Players } from "../shared/Types";
 import { CardState } from "../shared/Enums";
 import Card from "../shared/Card";
+import Main from "./Main";
 
 const { Graphics, Color } = {...GameObjects, ...Display}
 
@@ -26,7 +27,7 @@ export default class Match extends Scene
         this.setupMatchAssets()
         this.board.setupCardDeck()
         this.board.shuffleAndCut()
-        
+
         this.board.data.events.on('changedata-shufflesCount', this.enableGameplay, this)
     }
 

@@ -1,4 +1,4 @@
-import { Scene, GameObjects } from "phaser";
+import { Scene, GameObjects, Sound } from "phaser";
 import Match from "../scenes/Match";
 import GambleBoard from "../components/GambleBoard";
 import Card from "../shared/Card";
@@ -12,6 +12,10 @@ export default class Main extends Scene
     public height: number
     public match: Match
     public gambleboard: GambleBoard
+    public coinSound: Sound.BaseSound
+    public music: Sound.BaseSound
+    public flipSound: Sound.BaseSound
+    public shuffleSound: Sound.BaseSound
 
     constructor()
     {
@@ -20,6 +24,12 @@ export default class Main extends Scene
 
     public preload(): void
     {
+
+        this.load.audio('coin', ['audio/coin.ogg', 'audio/coin.mp3'])
+        this.load.audio('music', ['audio/music.mp3'])
+        this.load.audio('card_flip', ['audio/card_flip.ogg', 'audio/card_flip.mp3'])
+        this.load.audio('shuffle', ['audio/shuffle.ogg', 'audio/shuffle.mp3'])
+
         this.width = +this.game.config.width
         this.height = +this.game.config.height
 
@@ -29,11 +39,17 @@ export default class Main extends Scene
 
     public create(): void
     {  
+        this.coinSound = this.sound.add('coin', { volume: 2 })
+        this.flipSound = this.sound.add('card_flip', { volume: 2 })
+        this.shuffleSound = this.sound.add('shuffle', { volume: 1 })
+        this.sound.add('music', { volume: .4 }).play()
+
         this.match.data.events.on("changedata-counter", this.endTurn, this)
         this.match.data.events.on("endTurn", this.endTurn, this)
         this.match.data.events.on("updateInfoBar", this.updateInfoBar, this)
         
         this.tweens.add({
+            onStart: () => this.coinSound?.play(),
             targets: [this.match.cameras.main, this.cameras.main],
             zoom: { from: 2, to: 1 },
             duration: 1000,
@@ -75,6 +91,7 @@ export default class Main extends Scene
         {
             if(target.name === 'deck')
             {
+                this.coinSound.play()
                 this.gambleboard.data.set('potBet', potBet)
                 return
             }
@@ -108,7 +125,6 @@ export default class Main extends Scene
                 duration: 1000,
                 ease: "Back",
                 onComplete: () => {
-
                     const reset = new GameObjects.Text(this, 0, 0, "Play Again!", { fontSize: `${this.width*.07}px`})
                     .setTintFill(0xFFF000, 0xFFF000, 0xFF2200, 0xFF2200)
                     .setStroke("#FFF", 3)
@@ -182,7 +198,8 @@ export default class Main extends Scene
         this.time.delayedCall(2000, () => {
             
             this.gambleboard.data.set('potBet', 200)
-
+            this.shuffleSound?.play()
+            
             this.tweens.add({
                 targets: [...targets],
                 duration: 500,

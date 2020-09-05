@@ -1,4 +1,5 @@
-import { GameObjects, Types, Display } from 'phaser'
+import { GameObjects, Types, Display, Sound } from 'phaser'
+import Main from '../scenes/Main'
 import CardService from '../services/CardService'
 import Card from '../shared/Card'
 import { CardState } from '../shared/Enums'
@@ -12,6 +13,7 @@ export default class PokerCard extends Card
     public number:number
     public color:string
     public textConfig:Types.GameObjects.Text.TextStyle
+    public flipSound: Sound.BaseSound
 
     constructor(cardBaseConfig: CardBaseConfig, pokerCardInfo: PokerCardInfo)
     {
@@ -32,6 +34,9 @@ export default class PokerCard extends Card
     {
         if(animation)
         {
+            const main = this.scene.game.scene.getScene('Main') as Main
+            main.flipSound?.play()
+
             this.scene.tweens.add({
                 onStart: () => this.removeInteractive(),
                 targets: this,

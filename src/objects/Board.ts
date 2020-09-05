@@ -1,4 +1,5 @@
 import { GameObjects, Scene } from "phaser";
+import Main from "../scenes/Main";
 import BoardService from "../services/BoardService";
 import CardService from "../services/CardService";
 import Card from "../shared/Card";
@@ -98,9 +99,12 @@ class Board extends GameObjects.Container implements IBoard<Card>
       const effects = ['Quad', 'Back', 'Sine.easeInOut', 'Expo.easeIn', 'Back.easeInOut']
       const sortedEffect = effects[Phaser.Math.Between(0, effects.length-1)]
 
+      const main = this.scene.game.scene.getScene('Main') as Main
+
       this.players[player].forEach((card, index) => {
 
         this.scene.tweens.add({
+          onStart: () => main.shuffleSound?.play(),
           targets: card,
           x: this.placeholders[player][index].x - ((this.width)/2),
           y: player.includes("player2") ? this.height-this.cardWidth_Height.entity1-this.paddingX_Y.entity1 : this.paddingX_Y.entity1,
