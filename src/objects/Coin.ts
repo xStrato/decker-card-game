@@ -1,9 +1,3 @@
- /**
- * @author       xStrato <stratoxlive01@gmail.com>
- * @copyright    2020 xStrato
- * @license      {@link https://opensource.org/licenses/MIT|MIT License}
- */
-
 import { Scene, GameObjects} from "phaser";
 const {  Ellipse, Text } = GameObjects
 
